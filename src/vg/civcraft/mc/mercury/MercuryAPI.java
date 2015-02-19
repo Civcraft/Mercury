@@ -52,7 +52,7 @@ public class MercuryAPI{
 	 * @param key
 	 * @return
 	 */
-	public synchronized String getRedisValue(String key){
+	public String getRedisValue(String key){
 		JedisPool pool = MercuryPlugin.pool;
 		Jedis j = pool.getResource();
 		String value = j.get(key);
@@ -64,7 +64,7 @@ public class MercuryAPI{
 	 * @param key
 	 * @param value
 	 */
-	public synchronized void setRedisValue(String key, String value){
+	public void setRedisValue(String key, String value){
 		JedisPool pool = MercuryPlugin.pool;
 		Jedis j = pool.getResource();
 		j.set(key, value);

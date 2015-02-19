@@ -34,6 +34,10 @@ public class MercuryPlugin extends JavaPlugin{
 	    }, 100, 1000);
 	}
 	
+	public void onDisable(){
+		pool.destroy(); // close the jedis connection.
+	}
+	
 	public void enableJedis(){
 		JedisPoolConfig config = new JedisPoolConfig();
 		config.setMaxTotal(128);
