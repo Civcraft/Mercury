@@ -1,5 +1,5 @@
 redis:
  host: localhost
- port: 4040
+ port: 6379
  password: 
 server-name:
