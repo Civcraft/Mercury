@@ -64,6 +64,8 @@ public class PlayerTrackerListener implements Listener{
 	private void updateLocalCacheofPlayers(){
 		Jedis j = pool.getResource();
 		String players = j.get("players");
+		if (players == null)
+			return;
 		pool.returnResource(j);
 		List<UUID> playersID = new ArrayList<UUID>();
 		for (String x: players.split(";"))

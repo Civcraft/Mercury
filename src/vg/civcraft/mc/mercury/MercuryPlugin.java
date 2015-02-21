@@ -35,7 +35,7 @@ public class MercuryPlugin extends JavaPlugin{
 	}
 	
 	public void onDisable(){
-		pool.destroy(); // close the jedis connection.
+		pool.destroy();
 	}
 	
 	public void enableJedis(){
@@ -71,6 +71,8 @@ public class MercuryPlugin extends JavaPlugin{
 		if (x == null)
 			x = "";
 		x += MercuryConfigManager.getServerName() + ";";
+		j.set("servers", x);
+		pool.returnResource(j);
 	}
 	
 	private void pingRedis(){
@@ -81,6 +83,6 @@ public class MercuryPlugin extends JavaPlugin{
 		message.append("The servers that are currently connected are ");
 		for (String z: servers)
 			message.append(z + " ");
-		getLogger().log(Level.INFO, message.toString());
+		MercuryPlugin.instance.getLogger().log(Level.INFO, message.toString());
 	}
 }
