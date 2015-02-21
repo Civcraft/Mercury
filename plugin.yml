@@ -1,3 +1,6 @@
 name: Mercury
-main: vg.civcraft.mc.mercury
+
+main: vg.civcraft.mc.mercury.MercuryPlugin
+
+version: 1.0
 author: rourke750
