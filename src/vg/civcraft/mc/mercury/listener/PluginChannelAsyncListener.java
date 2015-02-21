@@ -6,7 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import redis.clients.jedis.JedisPubSub;
-import vg.civcraft.mc.mercury.events.PluginBroadcastMessageEvent;
+import vg.civcraft.mc.mercury.events.AsyncPluginBroadcastMessageEvent;
 
 public class PluginChannelAsyncListener extends JedisPubSub{
 
@@ -18,17 +18,8 @@ public class PluginChannelAsyncListener extends JedisPubSub{
 	
 	@Override
 	public void onMessage(String channel, String message){
-		final PluginBroadcastMessageEvent event = new PluginBroadcastMessageEvent(channel, message);
-		sched.scheduleSyncDelayedTask(plugin, new Runnable(){
-
-			@Override
-			public void run() {
-				// just to make sure everything is thread safe we are calling
-				// this from a synced thread.
-				Bukkit.getPluginManager().callEvent(event);
-			}
-			
-		});
+		final AsyncPluginBroadcastMessageEvent event = new AsyncPluginBroadcastMessageEvent(channel, message);
+		Bukkit.getPluginManager().callEvent(event);
 	}
 
 	@Override

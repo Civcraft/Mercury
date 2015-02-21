@@ -7,13 +7,13 @@ import org.bukkit.event.HandlerList;
  * @author rourke750
  *
  */
-public class PluginBroadcastMessageEvent extends Event{
+public class AsyncPluginBroadcastMessageEvent extends Event{
 
 	private HandlerList handle = new HandlerList();
 	private String channel;
 	private String message;
 	
-	public PluginBroadcastMessageEvent(String channel, String message){
+	public AsyncPluginBroadcastMessageEvent(String channel, String message){
 		this.channel = channel;
 		this.message = message;
 	}
