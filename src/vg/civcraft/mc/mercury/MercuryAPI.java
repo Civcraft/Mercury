@@ -24,7 +24,7 @@ public class MercuryAPI{
 	 * @param channel- The channel in question.
 	 */
 	public void registerPluginMessageChannel(JavaPlugin plugin, String... channels){
-		this.plugin.addRedisChannels(plugin, channels);
+		this.plugin.addChannels(plugin, channels);
 	}
 	/**
 	 * Sets all the players on all the servers.
@@ -48,33 +48,14 @@ public class MercuryAPI{
 		allPlayers.remove(player);
 	}
 	/**
-	 * Gets a value from the redis server.
-	 * @param key
-	 * @return
-	 */
-	public String getRedisValue(String key){
-		JedisPool pool = MercuryPlugin.pool;
-		Jedis j = pool.getResource();
-		String value = j.get(key);
-		pool.returnResource(j);
-		return value;
-	}
-	/**
-	 * Sets a value to the redis server.
-	 * @param key
-	 * @param value
-	 */
-	public void setRedisValue(String key, String value){
-		JedisPool pool = MercuryPlugin.pool;
-		Jedis j = pool.getResource();
-		j.set(key, value);
-		pool.returnResource(j);
-	}
-	/**
 	 * Get all players connected to all servers.
 	 * @return
 	 */
 	public List<UUID> getAllPlayers(){
 		return allPlayers;
+	}
+	
+	public void sendMessage(String message, String... channels){
+		plugin.sendMessage(message, channels);
 	}
 }

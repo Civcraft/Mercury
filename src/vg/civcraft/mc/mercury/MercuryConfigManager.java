@@ -21,4 +21,8 @@ public class MercuryConfigManager {
 	public static String getServerName(){
 		return config.getString("server-name");
 	}
+	
+	public static String getServiceHandler(){
+		return config.getString("service");
+	}
 }

@@ -21,7 +21,6 @@ import vg.civcraft.mc.mercury.MercuryPlugin;
 
 public class PlayerTrackerListener implements Listener{
 
-	private JedisPool pool = MercuryPlugin.pool;
 	public PlayerTrackerListener(){
 		Bukkit.getScheduler().runTaskTimerAsynchronously(MercuryPlugin.instance, 
 				new Runnable(){
@@ -51,34 +50,14 @@ public class PlayerTrackerListener implements Listener{
 	}
 	
 	private void addPlayer(Player p){
-		Jedis j = pool.getResource();
-		String players = j.get("players");
-		if (players == null)
-			players = "";
-		players += p.getUniqueId().toString() + ";";
-		j.set("players", players);
-		pool.returnResource(j);
-		MercuryAPI.instance.addPlayer(p.getUniqueId());
+		MercuryPlugin.handler.addPlayer(p);
 	}
 	
 	private void updateLocalCacheofPlayers(){
-		Jedis j = pool.getResource();
-		String players = j.get("players");
-		if (players == null)
-			return;
-		pool.returnResource(j);
-		List<UUID> playersID = new ArrayList<UUID>();
-		for (String x: players.split(";"))
-			playersID.add(UUID.fromString(x));
-		MercuryAPI.instance.setAllPlayers(playersID);
+		MercuryPlugin.handler.updateLocalCacheofPlayers();
 	}
 	
 	private void removePlayer(Player p){
-		Jedis j = pool.getResource();
-		String players = j.get("players");
-		players += p.getUniqueId().toString() + " ";
-		j.set("players", players);
-		pool.returnResource(j);
-		MercuryAPI.instance.removePlayer(p.getUniqueId());
+		MercuryPlugin.handler.removePlayer(p);
 	}
 }

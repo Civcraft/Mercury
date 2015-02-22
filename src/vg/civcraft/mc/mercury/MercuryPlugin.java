@@ -8,19 +8,21 @@ import org.bukkit.plugin.java.JavaPlugin;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import vg.civcraft.mc.mercury.jedis.JedisHandler;
 import vg.civcraft.mc.mercury.listener.PlayerTrackerListener;
 import vg.civcraft.mc.mercury.listener.PluginChannelAsyncListener;
+import vg.civcraft.mc.mercury.rabbitmq.RabbitHandler;
 
 public class MercuryPlugin extends JavaPlugin{
 
 	public static MercuryPlugin instance;
-	public static JedisPool pool;
+	public static ServiceHandler handler;
 	
 	@Override
 	public void onEnable(){
 		instance = this;
 	    saveDefaultConfig();
-	    enableJedis();
+	    handleService();
 	    new MercuryAPI();
 	    registerListeners();
 	    addServerToServerList();
@@ -28,37 +30,22 @@ public class MercuryPlugin extends JavaPlugin{
 
 			@Override
 			public void run() {
-				pingRedis();
+				pingService();
 			}
 	    	
 	    }, 100, 1000);
 	}
 	
 	public void onDisable(){
-		pool.destroy();
+		handler.destory();
 	}
 	
-	public void enableJedis(){
-		JedisPoolConfig config = new JedisPoolConfig();
-		config.setMaxTotal(128);
-		String host = MercuryConfigManager.getHost();
-		int port = MercuryConfigManager.getPort();
-		String password = MercuryConfigManager.getPassword();
-		pool = new JedisPool(config, host, port, 10, password);
+	public void addChannels(JavaPlugin plugin, String... channels){
+		handler.addChannels(plugin, channels);
 	}
 	
-	public void addRedisChannels(JavaPlugin plugin, String... channels){
-		Jedis j = pool.getResource();
-		PluginChannelAsyncListener listen = new PluginChannelAsyncListener(plugin);
-		j.subscribe(listen, channels);
-		pool.returnResource(j);
-	}
-	
-	public void sendRedisMessage(String message, String... channels){
-		Jedis j = pool.getResource();
-		for (String channel: channels)
-			j.publish(channel, message);
-		pool.returnResource(j);
+	public void sendMessage(String message, String... channels){
+		handler.sendMessage(message, channels);
 	}
 	
 	public void registerListeners(){
@@ -66,23 +53,18 @@ public class MercuryPlugin extends JavaPlugin{
 	}
 	
 	private void addServerToServerList(){
-		Jedis j = pool.getResource();
-		String x = j.get("servers");
-		if (x == null)
-			x = "";
-		x += MercuryConfigManager.getServerName() + ";";
-		j.set("servers", x);
-		pool.returnResource(j);
+		handler.addServerToServerList();
 	}
 	
-	private void pingRedis(){
-		Jedis j = pool.getResource();
-		String x = j.get("servers");
-		String[] servers = x.split(";");
-		StringBuilder message = new StringBuilder();
-		message.append("The servers that are currently connected are ");
-		for (String z: servers)
-			message.append(z + " ");
-		MercuryPlugin.instance.getLogger().log(Level.INFO, message.toString());
+	private void handleService(){
+		String service = MercuryConfigManager.getServiceHandler();
+		if (service.equalsIgnoreCase("redis"))
+			handler = new JedisHandler();
+		else if (service.equalsIgnoreCase("rabbit"))
+			handler = new RabbitHandler();
+	}
+	
+	private void pingService(){
+		handler.pingService();
 	}
 }
