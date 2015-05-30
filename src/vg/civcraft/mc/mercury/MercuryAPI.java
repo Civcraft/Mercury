@@ -1,61 +1,94 @@
 package vg.civcraft.mc.mercury;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.HashMap;
 
-import org.bukkit.plugin.java.JavaPlugin;
-
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-
-public class MercuryAPI{
-
-	private MercuryPlugin plugin = MercuryPlugin.instance;
-	public static MercuryAPI instance;
-	private List<UUID> allPlayers;
+public class MercuryAPI {
+	private static MercuryPlugin plugin = MercuryPlugin.instance;
+	private static MercuryService service;
+	private HashMap<String, ArrayList<String>> plugins = new HashMap<String, ArrayList<String>>();
+	private boolean disabled = true;
 	
-	public MercuryAPI(){
-		instance = this;
-	}
-	/**
-	 * Allows plugins to register a channel to themselves.
-	 * Please register all channels as once, each plugin get's its own listener.
-	 * @param plugin- The plugin in question.
-	 * @param channel- The channel in question.
-	 */
-	public void registerPluginMessageChannel(JavaPlugin plugin, String... channels){
-		this.plugin.addChannels(plugin, channels);
-	}
-	/**
-	 * Sets all the players on all the servers.
-	 * @param players
-	 */
-	public synchronized void setAllPlayers(List<UUID> players){
-		allPlayers = players;
-	}
-	/**
-	 * Adds a player to the list.
-	 * @param player
-	 */
-	public synchronized void addPlayer(UUID player){
-		allPlayers.add(player);
-	}
-	/**
-	 * Removes a player from the list.
-	 * @param player
-	 */
-	public synchronized void removePlayer(UUID player){
-		allPlayers.remove(player);
-	}
-	/**
-	 * Get all players connected to all servers.
-	 * @return
-	 */
-	public List<UUID> getAllPlayers(){
-		return allPlayers;
+	
+	public MercuryAPI(MercuryService service) {
+		MercuryAPI.service = service;
 	}
 	
-	public void sendMessage(String message, String... channels){
-		plugin.sendMessage(message, channels);
+	public synchronized void queueMessage(String plugin, String message){
+		if (plugins.containsKey(plugin)){
+			plugins.get(plugins).add(message);
+		}
 	}
+
+	
+	// Sends a message. If destination is empty or self, it will simulate sending to a local plugin.
+	// Returns true on success; false if otherwise: empty message; no existing plugin on local message; no connection to server
+	public synchronized boolean sendMessage(String destination, String plugin, String message){
+		if (disabled){return false;}
+		if (message.isEmpty()){return false;}
+		if (destination.isEmpty()){destination = service.servername;}
+		if (plugin.isEmpty()){plugin = " ";}
+		
+		if (destination.equals(service.servername)){ //sent to self
+			if (plugins.containsKey(plugin)){
+				plugins.get(plugin).add(message);
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		if (service.connected){
+			service.sendMessage(destination,plugin,message);
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	// Adds a plugins name to plugin mailbox queue
+	// returns true on success; false if name taken
+	public synchronized boolean registerPlugin(String name){
+		if (disabled){return false;}
+		if (plugins.containsKey(name)){
+			return false;
+		} else {
+			plugins.put(name, new ArrayList<String>());
+			return true;
+		}
+	}
+	
+	// Checks a plugins message box for messages
+	// returns true if box has messages; false if box is empty or plugin not registered
+	public synchronized boolean hasMessages(String name){
+		if (plugins.containsKey(name)){
+			return !plugins.get(name).isEmpty();
+		} else{
+			return false;
+		}
+	}
+	
+	// Takes the current message box and returns to sender, and replaces it with an empty one
+	// returns arraylist<string> with messages; null if box is empty
+	public synchronized ArrayList<String> getMessages(String name){
+		if (plugins.containsKey(name)){
+			final ArrayList<String> oldbox = plugins.get(name);
+			plugins.put(name, new ArrayList<String>());
+			return oldbox;
+		} else {
+			return null;
+		}
+	}
+
+
+	public synchronized void disable() {
+		disabled = true;
+		plugins.clear();
+	}
+
+	public synchronized void enable() {
+		disabled = false;		
+	}
+
+
 }
