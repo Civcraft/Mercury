@@ -55,7 +55,7 @@ public class MercuryAPI{
 		return allPlayers;
 	}
 	
-	public void sendMessage(String message, String... channels){
-		plugin.sendMessage(message, channels);
+	public void sendMessage(String dest, String message, String... channels){
+		plugin.sendMessage(dest, message, channels);
 	}
 }

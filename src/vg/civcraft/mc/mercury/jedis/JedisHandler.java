@@ -50,7 +50,7 @@ public class JedisHandler implements ServiceHandler{
 	}
 	
 	@Override
-	public void sendMessage(String message, String... channels){
+	public void sendMessage(String name, String message, String... channels){
 		Jedis j = pool.getResource();
 		for (String channel: channels)
 			j.publish(channel, message);
@@ -82,39 +82,5 @@ public class JedisHandler implements ServiceHandler{
 		j.set("servers", x);
 		pool.returnResource(j);
 		pool.destroy();
-	}
-	
-	public void addPlayer(Player p){
-		Jedis j = pool.getResource();
-		String players = j.get("players");
-		if (players == null)
-			players = "";
-		players += p.getUniqueId().toString() + ";";
-		j.set("players", players);
-		pool.returnResource(j);
-		MercuryAPI.instance.addPlayer(p.getUniqueId());
-	}
-	
-	@Override
-	public void updateLocalCacheofPlayers(){
-		Jedis j = pool.getResource();
-		String players = j.get("players");
-		if (players == null)
-			return;
-		pool.returnResource(j);
-		List<UUID> playersID = new ArrayList<UUID>();
-		for (String x: players.split(";"))
-			playersID.add(UUID.fromString(x));
-		MercuryAPI.instance.setAllPlayers(playersID);
-	}
-
-	@Override
-	public void removePlayer(Player p) {
-		Jedis j = pool.getResource();
-		String players = j.get("players");
-		players += p.getUniqueId().toString() + " ";
-		j.set("players", players);
-		pool.returnResource(j);
-		MercuryAPI.instance.removePlayer(p.getUniqueId());
 	}
 }

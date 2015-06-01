@@ -9,14 +9,15 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import vg.civcraft.mc.mercury.jedis.JedisHandler;
-import vg.civcraft.mc.mercury.listener.PlayerTrackerListener;
 import vg.civcraft.mc.mercury.listener.PluginChannelAsyncListener;
 import vg.civcraft.mc.mercury.rabbitmq.RabbitHandler;
+import vg.civcraft.mc.mercury.venus.VenusHandler;
 
 public class MercuryPlugin extends JavaPlugin{
 
 	public static MercuryPlugin instance;
 	public static ServiceHandler handler;
+	public static String name;
 	
 	@Override
 	public void onEnable(){
@@ -24,7 +25,6 @@ public class MercuryPlugin extends JavaPlugin{
 	    saveDefaultConfig();
 	    handleService();
 	    new MercuryAPI();
-	    registerListeners();
 	    addServerToServerList();
 	    Bukkit.getScheduler().runTaskTimer(this, new Runnable(){
 
@@ -34,6 +34,8 @@ public class MercuryPlugin extends JavaPlugin{
 			}
 	    	
 	    }, 100, 1000);
+	    
+	    name = MercuryConfigManager.getServerName();
 	}
 	
 	public void onDisable(){
@@ -44,12 +46,8 @@ public class MercuryPlugin extends JavaPlugin{
 		handler.addChannels(plugin, channels);
 	}
 	
-	public void sendMessage(String message, String... channels){
-		handler.sendMessage(message, channels);
-	}
-	
-	public void registerListeners(){
-		getServer().getPluginManager().registerEvents(new PlayerTrackerListener(), this);
+	public void sendMessage(String dest, String message, String... channels){
+		handler.sendMessage(dest, message, channels);
 	}
 	
 	private void addServerToServerList(){
@@ -62,6 +60,8 @@ public class MercuryPlugin extends JavaPlugin{
 			handler = new JedisHandler();
 		else if (service.equalsIgnoreCase("rabbit"))
 			handler = new RabbitHandler();
+		else if (service.equalsIgnoreCase("venus"))
+			handler = new VenusHandler();
 	}
 	
 	private void pingService(){

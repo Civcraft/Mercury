@@ -7,15 +7,15 @@ public class MercuryConfigManager {
 	private static FileConfiguration config = MercuryPlugin.instance.getConfig();
 	
 	public static String getHost(){
-		return config.getString("redis.host");
+		return config.getString("host");
 	}
 	
 	public static String getPassword(){
-		return config.getString("redis.password");
+		return config.getString("password");
 	}
 	
 	public static int getPort(){
-		return config.getInt("redis.port");
+		return config.getInt("port");
 	}
 	
 	public static String getServerName(){

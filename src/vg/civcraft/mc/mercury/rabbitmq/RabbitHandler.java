@@ -34,7 +34,7 @@ public class RabbitHandler implements ServiceHandler{
 	}
 
 	@Override
-	public void sendMessage(String message, String... channels) {
+	public void sendMessage(String dest, String message, String... channels) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -68,24 +68,6 @@ public class RabbitHandler implements ServiceHandler{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-	@Override
-	public void addPlayer(Player p) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void removePlayer(Player p) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void updateLocalCacheofPlayers() {
-		// TODO Auto-generated method stub
-		
 	}
 
 }
