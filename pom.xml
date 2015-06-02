@@ -17,8 +17,19 @@
   </properties>
   
   <build>
+    <sourceDirectory>${basedir}/src</sourceDirectory>
+    
+    <resources>
+      <resource>
+        <directory>${basedir}</directory>
+        <includes>
+          <include>*.yml</include>
+        </includes>
+      </resource>
+    </resources>
+	
 	<plugins>
-    <plugin>
+<plugin>
       <groupId>com.comphenix.maven</groupId>
       <artifactId>yaml-properties-plugin</artifactId>
       <version>0.1.0</version>
@@ -36,19 +47,6 @@
         </execution>
       </executions>  
     </plugin>
-    </plugins>
-    <sourceDirectory>${basedir}/src</sourceDirectory>
-    
-    <resources>
-      <resource>
-        <directory>${basedir}</directory>
-        <includes>
-          <include>*.yml</include>
-        </includes>
-      </resource>
-    </resources>
-	
-	<plugins>
 <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
