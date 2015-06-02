@@ -9,7 +9,7 @@ import org.bukkit.event.HandlerList;
  */
 public class AsyncPluginBroadcastMessageEvent extends Event{
 
-	private HandlerList handle = new HandlerList();
+	private static final HandlerList handle = new HandlerList();
 	private String channel;
 	private String message;
 	
@@ -20,6 +20,10 @@ public class AsyncPluginBroadcastMessageEvent extends Event{
 	
 	@Override
 	public HandlerList getHandlers() {
+		return handle;
+	}
+	
+	public static HandlerList getHandlerList() {
 		return handle;
 	}
 	
