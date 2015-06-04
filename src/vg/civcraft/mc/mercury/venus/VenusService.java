@@ -10,20 +10,20 @@ import java.net.UnknownHostException;
 import org.bukkit.Bukkit;
 
 import vg.civcraft.mc.mercury.MercuryAPI;
+import vg.civcraft.mc.mercury.MercuryConfigManager;
 import vg.civcraft.mc.mercury.MercuryPlugin;
 import vg.civcraft.mc.mercury.events.AsyncPluginBroadcastMessageEvent;
 
-public class MercuryService implements Runnable{
+public class VenusService implements Runnable{
 	
-	private static MercuryPlugin plugin = MercuryPlugin.instance;
-	private static MercuryAPI api = MercuryAPI.instance;
+	private static MercuryPlugin plugin;
 	private Socket socket;
 	private DataInputStream input;
 	private PrintWriter output;
 	public String servername;
 	public boolean connected = false;
 	
-	public MercuryService(MercuryPlugin plugin){
+	public VenusService(){
 		enable();
 	}
 	
@@ -35,7 +35,6 @@ public class MercuryService implements Runnable{
 	}
 	
 	// message structure when receiving is: msg,plugin,message
-	@SuppressWarnings("deprecation")
 	private void receiveMessage(String message){
 		if (message.isEmpty()){return;}
 		final String[] splitmsg = message.split(",", 3);
@@ -47,39 +46,44 @@ public class MercuryService implements Runnable{
 	
 	public void enable(){
 		// setup connection & read config from yml
-		servername = plugin.getConfig().getString("server-name").toLowerCase();
+		servername = MercuryConfigManager.getServerName();
 		//setup connection
 		try {
-			socket = new Socket(plugin.getConfig().getString("host"),plugin.getConfig().getInt("port"));
+			socket = new Socket(MercuryConfigManager.getHost(), MercuryConfigManager.getPort());
 			input = new DataInputStream(socket.getInputStream());
 			output = new PrintWriter(new DataOutputStream(socket.getOutputStream()));
-			if (registerVenus()){
+			if (registerVenus(servername)){
 				connected = true;
 			}
 		} catch (UnknownHostException e) {
-			Bukkit.getLogger().warning(plugin.name+"Unable to connect to Venus");
+			Bukkit.getLogger().warning("[Mercury] Unable to connect to Venus");
 			connected = false;
 		} catch (IOException e) {
-			Bukkit.getLogger().warning(plugin.name+"Unable to connect to Venus");
+			Bukkit.getLogger().warning("[Mercury] Unable to connect to Venus");
 			connected = false;
 		}
 	}
 	
 	//need to implement timeout for waiting for the welcome/reject message
 	@SuppressWarnings("deprecation")
-	private boolean registerVenus() throws IOException{
+	private boolean registerVenus(String servername){
 		output.println("register,"+ servername);
 		output.flush();
 		String response;
 		
-		while ((response = input.readLine()) != null){
-			if (response.equals("welcome")){
-				Bukkit.getLogger().info(plugin.name+"Connected to Venus server!");
-				return true;
-			} else{
-				Bukkit.getLogger().warning(plugin.name+"Error registering with Venus: "+response);
-				return false;
+		try {
+			while ((response = input.readLine()) != null){
+				if (response.equals("welcome")){
+					Bukkit.getLogger().info("[Mercury] Connected to Venus server!");
+					return true;
+				} else{
+					Bukkit.getLogger().warning("[Mercury] Error registering with Venus: "+response);
+					return false;
+				}
 			}
+		} catch (IOException e) {
+			Bukkit.getLogger().warning("[Mercury] Error registering with Venus: IO Error receiving packet");
+			return false;
 		}
 		return false;
 	}
@@ -105,7 +109,7 @@ public class MercuryService implements Runnable{
 					receiveMessage(recv);
 				}
 			} catch (IOException e) {
-				Bukkit.getLogger().warning(plugin.name+"Connection to Venus Server lost; reload plugin to reconnect.");
+				Bukkit.getLogger().warning("[Mercury] Connection to Venus Server lost; reload plugin to reconnect.");
 				shutdown();
 				break;
 			}
@@ -115,7 +119,7 @@ public class MercuryService implements Runnable{
 		}
 	}
 
-	public synchronized void sendMessage(String destination, String plugin, String message) {
+	public synchronized void sendMessage(String destination, String message, String plugin) {
 		// queue up message to be sent.
 		// message structure when sending is: msg,server,plugin,message
 		output.println("msg,"+destination+","+plugin+","+message);

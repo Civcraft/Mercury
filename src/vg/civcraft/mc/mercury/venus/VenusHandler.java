@@ -9,12 +9,13 @@ import vg.civcraft.mc.mercury.ServiceHandler;
 
 public class VenusHandler implements ServiceHandler{
 
-	private MercuryService service;
+	private VenusService service;
 	private MercuryPlugin plugin = MercuryPlugin.instance;
 	
 	public VenusHandler(){
-		service = new MercuryService(plugin);
-		Bukkit.getScheduler().runTaskAsynchronously(plugin, service);
+		service = new VenusService();
+		if (service.connected)
+			Bukkit.getScheduler().runTaskAsynchronously(plugin, service);
 	}
 	
 	// Venus doesn't need to be pinged.
