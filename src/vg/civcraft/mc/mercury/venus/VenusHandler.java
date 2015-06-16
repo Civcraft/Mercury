@@ -32,7 +32,7 @@ public class VenusHandler implements ServiceHandler{
 	@Override
 	public void sendMessage(String destination, String message, String... channels) {
 		for (String channel: channels)
-			service.sendMessage(destination, channel, message);
+			service.sendMessage(destination, message, channel);
 	}
 
 	// Venus doesn't need channels registered.

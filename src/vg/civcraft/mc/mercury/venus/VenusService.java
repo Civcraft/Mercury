@@ -16,7 +16,6 @@ import vg.civcraft.mc.mercury.events.AsyncPluginBroadcastMessageEvent;
 
 public class VenusService implements Runnable{
 	
-	private static MercuryPlugin plugin;
 	private Socket socket;
 	private DataInputStream input;
 	private PrintWriter output;
