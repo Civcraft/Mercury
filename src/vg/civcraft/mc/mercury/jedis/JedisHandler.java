@@ -27,6 +27,12 @@ public class JedisHandler implements ServiceHandler{
 	}
 	
 	@Override
+	public boolean isConnected() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
 	public void pingService() {
 		Jedis j = pool.getResource();
 		String x = j.get("servers");

@@ -18,6 +18,11 @@ public class VenusHandler implements ServiceHandler{
 			Bukkit.getScheduler().runTaskAsynchronously(plugin, service);
 	}
 	
+	@Override
+	public boolean isConnected() {
+		return service.connected;
+	}
+
 	// Venus doesn't need to be pinged.
 	@Override
 	public void pingService() {
