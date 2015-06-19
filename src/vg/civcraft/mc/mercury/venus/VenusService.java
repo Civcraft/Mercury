@@ -121,6 +121,7 @@ public class VenusService implements Runnable{
 	public synchronized void sendMessage(String destination, String message, String plugin) {
 		// queue up message to be sent.
 		// message structure when sending is: msg,server,plugin,message
+		if (connected == false){return;}
 		output.println("msg,"+destination+","+plugin+","+message);
 		output.flush();
 	}
