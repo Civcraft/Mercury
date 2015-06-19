@@ -24,6 +24,8 @@ public class MercuryPlugin extends JavaPlugin{
 		instance = this;
 	    saveDefaultConfig();
 	    handleService();
+	    if (handler == null)
+	    	return;
 	    new MercuryAPI();
 	    addServerToServerList();
 	    Bukkit.getScheduler().runTaskTimer(this, new Runnable(){
@@ -39,7 +41,8 @@ public class MercuryPlugin extends JavaPlugin{
 	}
 	
 	public void onDisable(){
-		handler.destory();
+		if (handler != null)
+			handler.destory();
 	}
 	
 	public void addChannels(JavaPlugin plugin, String... channels){
@@ -62,6 +65,11 @@ public class MercuryPlugin extends JavaPlugin{
 			handler = new RabbitHandler();
 		else if (service.equalsIgnoreCase("venus"))
 			handler = new VenusHandler();
+			
+		if (handler.isEnabled() == false){
+			handler = null;
+			getServer().getPluginManager().disablePlugin(this);
+		}
 	}
 	
 	private void pingService(){
