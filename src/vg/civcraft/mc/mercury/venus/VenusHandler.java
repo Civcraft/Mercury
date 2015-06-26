@@ -1,7 +1,6 @@
 package vg.civcraft.mc.mercury.venus;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import vg.civcraft.mc.mercury.MercuryPlugin;
@@ -16,6 +15,8 @@ public class VenusHandler implements ServiceHandler{
 		service = new VenusService();
 		if (service.connected)
 			Bukkit.getScheduler().runTaskAsynchronously(plugin, service);
+		else
+			service = null;
 	}
 	
 	// Venus doesn't need to be pinged.
@@ -32,7 +33,8 @@ public class VenusHandler implements ServiceHandler{
 	@Override
 	public void sendMessage(String destination, String message, String... channels) {
 		for (String channel: channels)
-			service.sendMessage(destination, message, channel);
+			if (service != null)
+				service.sendMessage(destination, message, channel);
 	}
 
 	// Venus doesn't need channels registered.
@@ -43,7 +45,17 @@ public class VenusHandler implements ServiceHandler{
 
 	@Override
 	public void destory() {
-		service.destroy();
+		if (service != null)
+			service.destroy();
 	}
+	
+	@Override
+	public boolean isEnabled(){
+		if (service != null)
+			return true;
+		else
+			return false;
+	}
+
 
 }

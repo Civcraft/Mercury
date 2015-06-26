@@ -23,6 +23,12 @@ public class RabbitHandler implements ServiceHandler{
 	}
 	
 	@Override
+	public boolean isEnabled() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
 	public void pingService() {
 		
 	}
