@@ -15,7 +15,7 @@ import vg.civcraft.mc.mercury.MercuryAPI;
 import vg.civcraft.mc.mercury.MercuryConfigManager;
 import vg.civcraft.mc.mercury.MercuryPlugin;
 import vg.civcraft.mc.mercury.ServiceHandler;
-import vg.civcraft.mc.mercury.listener.PluginChannelAsyncListener;
+import vg.civcraft.mc.mercury.listener.JedisListener;
 
 public class JedisHandler implements ServiceHandler{
 
@@ -56,7 +56,7 @@ public class JedisHandler implements ServiceHandler{
 	}
 	
 	@Override
-	public void sendMessage(String name, String message, String... channels){
+	public void sendMessage(String server, String message, String... channels){
 		Jedis j = pool.getResource();
 		for (String channel: channels)
 			j.publish(channel, message);
@@ -66,7 +66,7 @@ public class JedisHandler implements ServiceHandler{
 	@Override
 	public void addChannels(JavaPlugin plugin, String... channels){
 		Jedis j = pool.getResource();
-		PluginChannelAsyncListener listen = new PluginChannelAsyncListener(plugin);
+		JedisListener listen = new JedisListener(plugin);
 		j.subscribe(listen, channels);
 		pool.returnResource(j);
 	}

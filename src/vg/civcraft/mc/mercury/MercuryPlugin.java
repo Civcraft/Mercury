@@ -9,7 +9,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import vg.civcraft.mc.mercury.jedis.JedisHandler;
-import vg.civcraft.mc.mercury.listener.PluginChannelAsyncListener;
+import vg.civcraft.mc.mercury.listener.JedisListener;
 import vg.civcraft.mc.mercury.rabbitmq.RabbitHandler;
 import vg.civcraft.mc.mercury.venus.VenusHandler;
 

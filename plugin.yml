@@ -1,6 +1,4 @@
-name: Mercury
-
+name: ${project.name}
 main: vg.civcraft.mc.mercury.MercuryPlugin
-
-version: 1.0.1
+version: ${project.version}
 author: rourke750

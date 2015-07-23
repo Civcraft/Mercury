@@ -2,20 +2,25 @@ package vg.civcraft.mc.mercury.rabbitmq;
 
 import java.io.IOException;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.QueueingConsumer;
 
 import vg.civcraft.mc.mercury.MercuryConfigManager;
+import vg.civcraft.mc.mercury.MercuryPlugin;
 import vg.civcraft.mc.mercury.ServiceHandler;
 
 public class RabbitHandler implements ServiceHandler{
 
 	private Connection con;
 	private Channel chan;
+	private String queue;
 	
 	public RabbitHandler(){
 		addServerToServerList();
@@ -24,8 +29,7 @@ public class RabbitHandler implements ServiceHandler{
 	
 	@Override
 	public boolean isEnabled() {
-		// TODO Auto-generated method stub
-		return false;
+		return con != null && con.isOpen() && chan.isOpen();
 	}
 
 	@Override
@@ -35,20 +39,30 @@ public class RabbitHandler implements ServiceHandler{
 
 	@Override
 	public void addServerToServerList() {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void sendMessage(String dest, String message, String... channels) {
-		// TODO Auto-generated method stub
-		
+		for (String channel: channels)
+			try {
+				chan.basicPublish(channel, "", null, message.getBytes());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	}
 
 	@Override
 	public void addChannels(JavaPlugin plugin, String... channels) {
-		// TODO Auto-generated method stub
-		
+		for (String channel: channels)
+			try {
+				chan.exchangeDeclare(channel, "fanout");
+				chan.queueBind(queue, channel, "");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	}
 
 	@Override
@@ -70,6 +84,9 @@ public class RabbitHandler implements ServiceHandler{
 	    try {
 			con = factory.newConnection();
 			chan = con.createChannel();
+			queue = chan.queueDeclare().getQueue();
+			RabbitListenerThread thread = new RabbitListenerThread(chan, queue);
+			Bukkit.getScheduler().runTaskAsynchronously(MercuryPlugin.instance, thread);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

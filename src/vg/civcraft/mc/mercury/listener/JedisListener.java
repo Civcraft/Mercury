@@ -8,11 +8,11 @@ import org.bukkit.scheduler.BukkitScheduler;
 import redis.clients.jedis.JedisPubSub;
 import vg.civcraft.mc.mercury.events.AsyncPluginBroadcastMessageEvent;
 
-public class PluginChannelAsyncListener extends JedisPubSub{
+public class JedisListener extends JedisPubSub{
 
 	private JavaPlugin plugin;
 	private BukkitScheduler sched = Bukkit.getScheduler();
-	public PluginChannelAsyncListener(JavaPlugin plugin){
+	public JedisListener(JavaPlugin plugin){
 		this.plugin = plugin;
 	}
 	
