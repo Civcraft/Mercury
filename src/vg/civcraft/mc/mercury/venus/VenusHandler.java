@@ -1,7 +1,6 @@
 package vg.civcraft.mc.mercury.venus;
 
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import vg.civcraft.mc.mercury.MercuryPlugin;
 import vg.civcraft.mc.mercury.ServiceHandler;
@@ -39,7 +38,7 @@ public class VenusHandler implements ServiceHandler{
 
 	// Venus doesn't need channels registered.
 	@Override
-	public void addChannels(JavaPlugin plugin, String... channels) {
+	public void addChannels(String... channels) {
 		
 	}
 

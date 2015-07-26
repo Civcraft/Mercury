@@ -1,10 +1,10 @@
 package vg.civcraft.mc.mercury.rabbitmq;
 
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
@@ -54,7 +54,7 @@ public class RabbitHandler implements ServiceHandler{
 	}
 
 	@Override
-	public void addChannels(JavaPlugin plugin, String... channels) {
+	public void addChannels(String... channels) {
 		for (String channel: channels)
 			try {
 				chan.exchangeDeclare(channel, "fanout");
@@ -71,25 +71,35 @@ public class RabbitHandler implements ServiceHandler{
 			con.close();
 			chan.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			con = null;
+			chan = null;
+		} catch (TimeoutException te) {
+			te.printStackTrace();
+			con = null;
+			chan = null;
 		}
 	}
 	
 	private void enableRabbit(){
 		ConnectionFactory factory = new ConnectionFactory();
-	    factory.setHost(MercuryConfigManager.getHost());
-	    factory.setPassword(MercuryConfigManager.getPassword());
-	    factory.setPort(MercuryConfigManager.getPort());
-	    try {
+	  factory.setHost(MercuryConfigManager.getHost());
+	  factory.setPassword(MercuryConfigManager.getPassword());
+	  factory.setPort(MercuryConfigManager.getPort());
+	  try {
 			con = factory.newConnection();
 			chan = con.createChannel();
 			queue = chan.queueDeclare().getQueue();
 			RabbitListenerThread thread = new RabbitListenerThread(chan, queue);
 			Bukkit.getScheduler().runTaskAsynchronously(MercuryPlugin.instance, thread);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			con = null;
+			chan = null;
+		} catch (TimeoutException te) {
+			te.printStackTrace();
+			con = null;
+			chan = null;
 		}
 	}
 

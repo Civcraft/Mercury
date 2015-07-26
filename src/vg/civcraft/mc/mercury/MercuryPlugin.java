@@ -1,15 +1,9 @@
 package vg.civcraft.mc.mercury;
 
-import java.util.logging.Level;
-
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 import vg.civcraft.mc.mercury.jedis.JedisHandler;
-import vg.civcraft.mc.mercury.listener.JedisListener;
 import vg.civcraft.mc.mercury.rabbitmq.RabbitHandler;
 import vg.civcraft.mc.mercury.venus.VenusHandler;
 
@@ -45,8 +39,8 @@ public class MercuryPlugin extends JavaPlugin{
 			handler.destory();
 	}
 	
-	public void addChannels(JavaPlugin plugin, String... channels){
-		handler.addChannels(plugin, channels);
+	public void addChannels(String... channels){
+		handler.addChannels(channels);
 	}
 	
 	public void sendMessage(String dest, String message, String... channels){
