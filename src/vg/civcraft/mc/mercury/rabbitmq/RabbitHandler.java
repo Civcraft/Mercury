@@ -12,9 +12,9 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.QueueingConsumer;
 
-import vg.civcraft.mc.mercury.MercuryConfigManager;
 import vg.civcraft.mc.mercury.MercuryPlugin;
 import vg.civcraft.mc.mercury.ServiceHandler;
+import vg.civcraft.mc.mercury.config.MercuryConfigManager;
 
 public class RabbitHandler implements ServiceHandler{
 
@@ -29,7 +29,7 @@ public class RabbitHandler implements ServiceHandler{
 	
 	@Override
 	public boolean isEnabled() {
-		return con != null && con.isOpen() && chan.isOpen();
+		return con != null && con.isOpen() && chan != null && chan.isOpen();
 	}
 
 	@Override

@@ -9,7 +9,7 @@ import java.net.UnknownHostException;
 
 import org.bukkit.Bukkit;
 
-import vg.civcraft.mc.mercury.MercuryConfigManager;
+import vg.civcraft.mc.mercury.config.MercuryConfigManager;
 import vg.civcraft.mc.mercury.events.AsyncPluginBroadcastMessageEvent;
 
 public class VenusService implements Runnable{
