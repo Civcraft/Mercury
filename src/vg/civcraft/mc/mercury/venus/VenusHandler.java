@@ -1,7 +1,5 @@
 package vg.civcraft.mc.mercury.venus;
 
-import org.bukkit.Bukkit;
-
 import vg.civcraft.mc.mercury.MercuryPlugin;
 import vg.civcraft.mc.mercury.ServiceHandler;
 
@@ -13,7 +11,7 @@ public class VenusHandler implements ServiceHandler{
 	public VenusHandler(){
 		service = new VenusService();
 		if (service.connected)
-			Bukkit.getScheduler().runTaskAsynchronously(plugin, service);
+			service.start();
 		else
 			service = null;
 	}
@@ -45,7 +43,7 @@ public class VenusHandler implements ServiceHandler{
 	@Override
 	public void destory() {
 		if (service != null)
-			service.destroy();
+			service.teardown();
 	}
 	
 	@Override

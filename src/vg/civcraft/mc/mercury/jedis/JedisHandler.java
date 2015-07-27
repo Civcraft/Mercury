@@ -5,16 +5,14 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
-import org.bukkit.entity.Player;
-
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+
 import vg.civcraft.mc.mercury.MercuryAPI;
 import vg.civcraft.mc.mercury.MercuryPlugin;
 import vg.civcraft.mc.mercury.ServiceHandler;
 import vg.civcraft.mc.mercury.config.MercuryConfigManager;
-import vg.civcraft.mc.mercury.listener.JedisListener;
 
 public class JedisHandler implements ServiceHandler{
 

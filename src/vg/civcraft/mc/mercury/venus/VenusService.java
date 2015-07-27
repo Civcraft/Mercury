@@ -1,85 +1,86 @@
 package vg.civcraft.mc.mercury.venus;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import org.bukkit.Bukkit;
+import org.apache.logging.log4j.Logger;  // Shaded with Bukkit
+import org.apache.logging.log4j.LogManager;  // Shaded with Bukkit
 
 import vg.civcraft.mc.mercury.config.MercuryConfigManager;
-import vg.civcraft.mc.mercury.events.AsyncPluginBroadcastMessageEvent;
+import vg.civcraft.mc.mercury.events.EventManager;
 
-public class VenusService implements Runnable{
-	
+public class VenusService extends Thread{
+
+	private final static Logger logger = LogManager.getLogger(VenusService.class);
 	private Socket socket;
-	private DataInputStream input;
+	private BufferedReader input;
 	private PrintWriter output;
 	public String servername;
 	public boolean connected = false;
-	
+
 	public VenusService(){
 		enable();
 	}
-	
-	public void destroy(){
+
+	public void teardown(){
 		if (connected){
 			// lock message queue
 			this.shutdown();
 		}
 	}
-	
+
 	// message structure when receiving is: msg,plugin,message
 	private void receiveMessage(String message){
 		if (message.isEmpty()){return;}
 		final String[] splitmsg = message.split(",", 3);
 		if (splitmsg[0].equals("msg")){
-			AsyncPluginBroadcastMessageEvent event = new AsyncPluginBroadcastMessageEvent(splitmsg[1], splitmsg[2]);
-			Bukkit.getPluginManager().callEvent(event);
-		}		
+			EventManager.fireMessage(splitmsg[1], splitmsg[2]);
+		}
 	}
-	
+
 	public void enable(){
 		// setup connection & read config from yml
 		servername = MercuryConfigManager.getServerName();
 		//setup connection
 		try {
 			socket = new Socket(MercuryConfigManager.getHost(), MercuryConfigManager.getPort());
-			input = new DataInputStream(socket.getInputStream());
-			output = new PrintWriter(new DataOutputStream(socket.getOutputStream()));
+			input = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+			output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
 			if (registerVenus(servername)){
 				connected = true;
 			}
 		} catch (UnknownHostException e) {
-			Bukkit.getLogger().warning("[Mercury] Unable to connect to Venus");
+			logger.warn("[Mercury] Unable to connect to Venus");
 			connected = false;
 		} catch (IOException e) {
-			Bukkit.getLogger().warning("[Mercury] Unable to connect to Venus");
+			logger.warn("[Mercury] Unable to connect to Venus");
 			connected = false;
 		}
 	}
-	
+
 	//need to implement timeout for waiting for the welcome/reject message
-	@SuppressWarnings("deprecation")
 	private boolean registerVenus(String servername){
 		output.println("register,"+ servername);
 		output.flush();
 		String response;
-		
+
 		try {
 			while ((response = input.readLine()) != null){
 				if (response.equals("welcome")){
-					Bukkit.getLogger().info("[Mercury] Connected to Venus server!");
+					logger.info("[Mercury] Connected to Venus server!");
 					return true;
 				} else{
-					Bukkit.getLogger().warning("[Mercury] Error registering with Venus: "+response);
+					logger.warn("[Mercury] Error registering with Venus: "+response);
 					return false;
 				}
 			}
 		} catch (IOException e) {
-			Bukkit.getLogger().warning("[Mercury] Error registering with Venus: IO Error receiving packet");
+			logger.warn("[Mercury] Error registering with Venus: IO Error receiving packet");
 			return false;
 		}
 		return false;
@@ -96,7 +97,6 @@ public class VenusService implements Runnable{
 		connected = false;
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void run() {
 		if (connected == false){return;}
@@ -107,7 +107,7 @@ public class VenusService implements Runnable{
 					receiveMessage(recv);
 				}
 			} catch (IOException e) {
-				Bukkit.getLogger().warning("[Mercury] Connection to Venus Server lost; reload plugin to reconnect.");
+				logger.warn("[Mercury] Connection to Venus Server lost; reload plugin to reconnect.");
 				shutdown();
 				break;
 			}
