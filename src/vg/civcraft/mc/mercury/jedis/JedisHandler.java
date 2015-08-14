@@ -5,17 +5,14 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
-
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+
 import vg.civcraft.mc.mercury.MercuryAPI;
-import vg.civcraft.mc.mercury.MercuryConfigManager;
 import vg.civcraft.mc.mercury.MercuryPlugin;
 import vg.civcraft.mc.mercury.ServiceHandler;
-import vg.civcraft.mc.mercury.listener.JedisListener;
+import vg.civcraft.mc.mercury.config.MercuryConfigManager;
 
 public class JedisHandler implements ServiceHandler{
 
@@ -52,7 +49,7 @@ public class JedisHandler implements ServiceHandler{
 			x = "";
 		x += MercuryConfigManager.getServerName() + ";";
 		j.set("servers", x);
-		pool.returnResource(j);
+		j.close();
 	}
 	
 	@Override
@@ -60,15 +57,15 @@ public class JedisHandler implements ServiceHandler{
 		Jedis j = pool.getResource();
 		for (String channel: channels)
 			j.publish(channel, message);
-		pool.returnResource(j);
+		j.close();
 	}
 	
 	@Override
-	public void addChannels(JavaPlugin plugin, String... channels){
+	public void addChannels(String... channels){
 		Jedis j = pool.getResource();
-		JedisListener listen = new JedisListener(plugin);
+		JedisListener listen = new JedisListener();
 		j.subscribe(listen, channels);
-		pool.returnResource(j);
+		j.close();
 	}
 	
 	private void enableJedis(){
@@ -86,7 +83,7 @@ public class JedisHandler implements ServiceHandler{
 		String x = j.get("servers");
 		x.replaceFirst(MercuryConfigManager.getServerName() +";", "");
 		j.set("servers", x);
-		pool.returnResource(j);
+		j.close();
 		pool.destroy();
 	}
 }

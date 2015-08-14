@@ -23,8 +23,8 @@ public class MercuryAPI{
 	 * @param plugin- The plugin in question.
 	 * @param channel- The channel in question.
 	 */
-	public void registerPluginMessageChannel(JavaPlugin plugin, String... channels){
-		this.plugin.addChannels(plugin, channels);
+	public void registerPluginMessageChannel(String... channels){
+		this.plugin.addChannels(channels);
 	}
 	/**
 	 * Sets all the players on all the servers.
