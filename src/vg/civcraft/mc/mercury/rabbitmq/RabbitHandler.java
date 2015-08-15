@@ -73,10 +73,6 @@ public class RabbitHandler implements ServiceHandler{
 			e.printStackTrace();
 			con = null;
 			chan = null;
-		} catch (TimeoutException te) {
-			te.printStackTrace();
-			con = null;
-			chan = null;
 		}
 	}
 
@@ -93,10 +89,6 @@ public class RabbitHandler implements ServiceHandler{
 			thread.start();
 		} catch (IOException e) {
 			e.printStackTrace();
-			con = null;
-			chan = null;
-		} catch (TimeoutException te) {
-			te.printStackTrace();
 			con = null;
 			chan = null;
 		}
