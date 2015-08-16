@@ -6,9 +6,8 @@
 	<groupId>vg.civcraft.mc.mercury</groupId>
 	<artifactId>Mercury</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0.3</version>
+	<version>1.0.4</version>
 	<name>Mercury</name>
-	<description/>
 	<url>https://github.com/Civcraft/Mercury</url>
 
 	<properties>
