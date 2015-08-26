@@ -12,6 +12,10 @@ public class MercuryConfigManager {
 	public static String getHost(){
 		return config_.getHost();
 	}
+	
+	public static String getUserName(){
+		return config_.getUserName();
+	}
 
 	public static String getPassword(){
 		return config_.getPassword();

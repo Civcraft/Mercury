@@ -39,6 +39,11 @@ public class JsonConfiguration implements Configuration {
 	public String getServerName(){
 		return serverName_;
 	}
+	
+	@Override
+	public String getUserName() {
+		return userName;
+	}
 
 	@Override
 	public String getServiceHandler(){
@@ -57,6 +62,7 @@ public class JsonConfiguration implements Configuration {
 			port_ = getInt(json, "port");
 			serverName_ = getString(json, "server-name");
 			serviceHandler_ = getString(json, "service");
+			userName = getString(json, "username");
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		} finally {
@@ -91,4 +97,5 @@ public class JsonConfiguration implements Configuration {
 	private Integer port_ = null;
 	private String serverName_ = null;
 	private String serviceHandler_ = null;
+	private String userName = null;
 }

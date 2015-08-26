@@ -6,4 +6,5 @@ public interface Configuration {
 	Integer getPort();
 	String getServerName();
 	String getServiceHandler();
+	String getUserName();
 }

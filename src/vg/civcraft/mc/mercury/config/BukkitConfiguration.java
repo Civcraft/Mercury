@@ -24,6 +24,11 @@ public class BukkitConfiguration implements Configuration {
 		}
 		return new Integer(val);
 	}
+	
+	@Override
+	public String getUserName() {
+		return config().getString("username", "");
+	}
 
 	@Override
 	public String getServerName(){

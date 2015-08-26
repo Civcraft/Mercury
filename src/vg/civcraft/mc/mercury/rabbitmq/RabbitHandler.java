@@ -79,6 +79,7 @@ public class RabbitHandler implements ServiceHandler{
 	private void enableRabbit(){
 		ConnectionFactory factory = new ConnectionFactory();
 		factory.setHost(MercuryConfigManager.getHost());
+		factory.setUsername(MercuryConfigManager.getUserName());
 		factory.setPassword(MercuryConfigManager.getPassword());
 		factory.setPort(MercuryConfigManager.getPort());
 		try {
