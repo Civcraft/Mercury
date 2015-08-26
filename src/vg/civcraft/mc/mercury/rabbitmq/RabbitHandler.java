@@ -55,7 +55,7 @@ public class RabbitHandler implements ServiceHandler{
 	public void addChannels(String... channels) {
 		for (String channel: channels)
 			try {
-				chan.exchangeDeclare(channel, "fanout");
+				chan.exchangeDeclare(channel, "fanout", true);
 				chan.queueBind(queue, channel, "");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
