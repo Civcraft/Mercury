@@ -6,7 +6,7 @@ import vg.civcraft.mc.mercury.jedis.JedisHandler;
 import vg.civcraft.mc.mercury.rabbitmq.RabbitHandler;
 import vg.civcraft.mc.mercury.venus.VenusHandler;
 
-class ServiceManager {
+public class ServiceManager {
 	public final static ServiceHandler getService() {
 		return ServiceManager.getService(MercuryConfigManager.getServiceHandler());
 	}
