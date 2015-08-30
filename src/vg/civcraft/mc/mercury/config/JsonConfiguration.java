@@ -2,6 +2,7 @@ package vg.civcraft.mc.mercury.config;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -53,8 +54,11 @@ public class JsonConfiguration implements Configuration {
 	private void parse() {
 		InputStreamReader isr = null;
 		try {
+			File file = new File(fileName_);
+			if (!file.exists())
+				file.createNewFile();
 			isr = new InputStreamReader(
-					new FileInputStream(new File(fileName_)), "UTF-8");
+					new FileInputStream(file), "UTF-8");
 			JSONObject json = new JSONObject(new JSONTokener(isr));
 
 			host_ = getString(json, "host");
