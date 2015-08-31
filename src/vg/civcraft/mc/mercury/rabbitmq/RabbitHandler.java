@@ -86,7 +86,7 @@ public class RabbitHandler implements ServiceHandler{
 			con = factory.newConnection();
 			chan = con.createChannel();
 			queue = chan.queueDeclare().getQueue();
-			RabbitListenerThread thread = new RabbitListenerThread(this, chan, queue);
+			thread = new RabbitListenerThread(this, chan, queue);
 			thread.start();
 		} catch (IOException e) {
 			e.printStackTrace();
