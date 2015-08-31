@@ -74,10 +74,6 @@ public class JsonConfiguration implements Configuration {
 	}
 	*/
 	
-	public static JsonConfiguration load() {
-		return load(new File(fileName_));
-	}
-	
 	public static JsonConfiguration load(File file) {
 		Gson gson = new Gson();
 		try {
@@ -100,7 +96,7 @@ public class JsonConfiguration implements Configuration {
 		}
 	}
 
-	private static String fileName_ = "mercury_cfg.json";
+	private static String fileName_ = null;
 	private String host_ = null;
 	private String password_ = null;
 	private Integer port_ = null;

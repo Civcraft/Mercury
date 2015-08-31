@@ -1,11 +1,20 @@
 package vg.civcraft.mc.mercury.config;
 
+import java.io.File;
+
 public class MercuryConfigManager {
 	public static void initialize() {
 		if (MercuryConfigManager.inBukkit()) {
 			config_ = new BukkitConfiguration();
 		} else {
-			config_ = JsonConfiguration.load();
+			File file = new File("mercury_cfg.json");
+			if (!file.exists()) {
+				JsonConfiguration c = new JsonConfiguration(file.getName());
+				c.save(file);
+				config_ = c;
+			}
+			else
+				config_ = JsonConfiguration.load(file);
 		}
 	}
 
