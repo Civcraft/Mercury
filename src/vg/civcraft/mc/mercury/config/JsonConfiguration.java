@@ -96,11 +96,11 @@ public class JsonConfiguration implements Configuration {
 		}
 	}
 
-	private static String fileName_ = null;
-	private String host_ = null;
-	private String password_ = null;
-	private Integer port_ = null;
-	private String serverName_ = null;
-	private String serviceHandler_ = null;
-	private String userName = null;
+	private String fileName_ = null;
+	private String host_ = "localhost";
+	private String password_ = "";
+	private Integer port_ = 0;
+	private String serverName_ = "";
+	private String serviceHandler_ = "rabbitmq";
+	private String userName = "bukkit";
 }
