@@ -5,7 +5,7 @@ public class MercuryConfigManager {
 		if (MercuryConfigManager.inBukkit()) {
 			config_ = new BukkitConfiguration();
 		} else {
-			config_ = new JsonConfiguration();
+			config_ = JsonConfiguration.load();
 		}
 	}
 

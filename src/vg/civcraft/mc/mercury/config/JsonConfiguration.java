@@ -3,22 +3,23 @@ package vg.civcraft.mc.mercury.config;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+import net.minecraft.util.com.google.gson.Gson;
+import net.minecraft.util.com.google.gson.GsonBuilder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
 public class JsonConfiguration implements Configuration {
-	public JsonConfiguration(){
-		fileName_ = "mercury_cfg.json";
-		parse();
-	}
 
 	public JsonConfiguration(String fileName){
 		fileName_ = fileName;
-		parse();
+		//parse();
 	}
 
 	@Override
@@ -51,6 +52,7 @@ public class JsonConfiguration implements Configuration {
 		return serviceHandler_;
 	}
 
+	/*
 	private void parse() {
 		InputStreamReader isr = null;
 		try {
@@ -78,24 +80,35 @@ public class JsonConfiguration implements Configuration {
 			}
 		}
 	}
-
-	private String getString(JSONObject json, String key) {
+	*/
+	
+	public static JsonConfiguration load() {
+		return load(new File(fileName_));
+	}
+	
+	public static JsonConfiguration load(File file) {
+		Gson gson = new Gson();
 		try {
-			return json.getString(key);
-		} catch (JSONException ex) {
-			return null;
+			return (JsonConfiguration) gson.fromJson(new FileReader(file), JsonConfiguration.class);
+		} catch (Exception e) {
+			return new JsonConfiguration(file.getAbsolutePath());
+		}
+	}
+	
+	public void save(File file) {
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		try {
+			String json = gson.toJson(this);
+			
+			FileWriter fw = new FileWriter(file);
+			fw.write(json);
+			fw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
-	private Integer getInt(JSONObject json, String key) {
-		try {
-			return new Integer(json.getInt(key));
-		} catch (JSONException ex) {
-			return null;
-		}
-	}
-
-	private String fileName_ = null;
+	private static String fileName_ = "mercury_cfg.json";
 	private String host_ = null;
 	private String password_ = null;
 	private Integer port_ = null;
