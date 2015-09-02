@@ -44,6 +44,8 @@ public class RabbitHandler implements ServiceHandler{
 	public void sendMessage(String dest, String message, String... channels) {
 		for (String channel: channels)
 			try {
+				if (!chan.isOpen()) // Incase we somehow loose connection.
+					enableRabbit();
 				chan.basicPublish(channel, "", null, message.getBytes());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -55,6 +57,8 @@ public class RabbitHandler implements ServiceHandler{
 	public void addChannels(String... channels) {
 		for (String channel: channels)
 			try {
+				if (!chan.isOpen()) // Incase we somehow loose connection.
+					enableRabbit();
 				chan.exchangeDeclare(channel, "fanout", true);
 				chan.queueBind(queue, channel, "");
 			} catch (IOException e) {
