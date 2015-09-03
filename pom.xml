@@ -88,4 +88,14 @@
 			<url>http://repo.comphenix.net/content/groups/public</url>
 		</pluginRepository>
 	</pluginRepositories>
+	<repositories>
+		<repository>
+			<id>Jenkins-repo</id>
+			<url>http://build.civcraft.co:8080/plugin/repository/everything/</url>
+		</repository>
+		<repository>
+			<id>spigot-repo</id>
+			<url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+		</repository>
+	</repositories>
 </project>
