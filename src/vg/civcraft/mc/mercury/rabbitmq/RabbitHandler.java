@@ -9,6 +9,7 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.QueueingConsumer;
 
+import vg.civcraft.mc.mercury.MercuryAPI;
 import vg.civcraft.mc.mercury.MercuryPlugin;
 import vg.civcraft.mc.mercury.ServiceHandler;
 import vg.civcraft.mc.mercury.config.MercuryConfigManager;
@@ -32,7 +33,7 @@ public class RabbitHandler implements ServiceHandler{
 
 	@Override
 	public void pingService() {
-		
+		MercuryAPI.instance.sendMessage("all", "ping " + MercuryAPI.serverName, "mercury");
 	}
 
 	@Override

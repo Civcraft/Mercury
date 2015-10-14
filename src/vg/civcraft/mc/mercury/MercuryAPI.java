@@ -1,8 +1,10 @@
 package vg.civcraft.mc.mercury;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import org.bukkit.plugin.java.JavaPlugin;
@@ -14,11 +16,15 @@ public class MercuryAPI{
 
 	private MercuryPlugin plugin = MercuryPlugin.instance;
 	public static MercuryAPI instance;
-	private static HashMap<String, String> onlineAllServers;
+	private static HashMap<String, String> onlineAllServers; // Players, Server
+	private Set<String> connectedServers;
+	public static String serverName;
 	
 	public MercuryAPI(){
 		instance = this;
 		onlineAllServers = new HashMap<String, String>();
+		connectedServers = new TreeSet<String>();
+		serverName = MercuryPlugin.name;
 	}
 	/**
 	 * Allows plugins to register a channel to themselves.
@@ -67,5 +73,21 @@ public class MercuryAPI{
 	
 	public void sendMessage(String dest, String message, String... channels){
 		plugin.sendMessage(dest, message, channels);
+	}
+	
+	/**
+	 * Gets all connected servers.
+	 * @return Returns a list of servers that are connected.
+	 */
+	public synchronized Set<String> getAllConnectedServers() {
+		return connectedServers;
+	}
+	
+	protected synchronized void addConnectedServer(String server) {
+		connectedServers.add(server);
+	}
+	
+	protected synchronized void removeConnectedServer(String server) {
+		connectedServers.remove(server);
 	}
 }

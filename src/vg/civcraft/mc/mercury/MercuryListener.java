@@ -1,5 +1,8 @@
 package vg.civcraft.mc.mercury;
 
+import java.util.Collections;
+import java.util.Set;
+import java.util.TreeSet;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,6 +14,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import vg.civcraft.mc.mercury.events.AsyncPluginBroadcastMessageEvent;
 
 public class MercuryListener implements Listener {
+	
+	private Set<String> pinged = Collections.synchronizedSet(new TreeSet<String>());
 	
 	public MercuryListener() {
 		MercuryAPI.instance.registerPluginMessageChannel("mercury");
@@ -30,8 +35,21 @@ public class MercuryListener implements Listener {
 			}
 			
 		}, 10, 1200);
+		
+		Bukkit.getScheduler().scheduleSyncRepeatingTask(MercuryPlugin.instance, new Runnable() {
+
+			@Override
+			public void run() {
+				for (String server: MercuryAPI.instance.getAllConnectedServers())
+					if (!pinged.contains(server))
+						MercuryAPI.instance.removeConnectedServer(server);
+				pinged.clear();
+			}
+			
+		}, 100, 200);
 	}
 	
+	@EventHandler()
 	public void onMerucyrMessage(AsyncPluginBroadcastMessageEvent event) {
 		if (!event.getChannel().equalsIgnoreCase("mercury"))
 			return;
@@ -67,6 +85,10 @@ public class MercuryListener implements Listener {
 			allsynced = allsynced.substring(0, allsynced.length()-2);
 			MercuryPlugin.instance.getLogger().info("Synced players from '"+message[1]+"': "+allsynced);
 			return;
+		} else if (reason.equals("ping")){
+			String server = message[1];
+			MercuryAPI.instance.addConnectedServer(server);
+			pinged.add(server);
 		}
 		
 	}

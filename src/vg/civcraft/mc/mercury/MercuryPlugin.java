@@ -9,6 +9,7 @@ public class MercuryPlugin extends JavaPlugin{
 
 	public static MercuryPlugin instance;
 	public static ServiceHandler handler;
+	// This is the name of the server.
 	public static String name;
 
 	@Override
@@ -26,7 +27,7 @@ public class MercuryPlugin extends JavaPlugin{
 			public void run() {
 				pingService();
 			}
-		}, 100, 1000);
+		}, 100, 100);
 
 		name = MercuryConfigManager.getServerName();
 	}
