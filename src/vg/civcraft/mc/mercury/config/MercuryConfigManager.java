@@ -2,6 +2,8 @@ package vg.civcraft.mc.mercury.config;
 
 import java.io.File;
 
+import vg.civcraft.mc.mercury.MercuryAPI;
+
 public class MercuryConfigManager {
 	public static void initialize() {
 		if (MercuryConfigManager.inBukkit()) {
@@ -15,6 +17,8 @@ public class MercuryConfigManager {
 			}
 			else
 				config_ = JsonConfiguration.load(file);
+			// We know that onEnable wasn't called so we have to call some those methods now.
+			new MercuryAPI();
 		}
 	}
 
