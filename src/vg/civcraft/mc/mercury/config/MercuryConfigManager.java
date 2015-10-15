@@ -17,8 +17,6 @@ public class MercuryConfigManager {
 			}
 			else
 				config_ = JsonConfiguration.load(file);
-			// We know that onEnable wasn't called so we have to call some those methods now.
-			new MercuryAPI();
 		}
 	}
 
