@@ -11,20 +11,28 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import vg.civcraft.mc.mercury.config.MercuryConfigManager;
 
 public class MercuryAPI{
 
-	private MercuryPlugin plugin = MercuryPlugin.instance;
 	public static MercuryAPI instance;
 	private static HashMap<String, String> onlineAllServers; // Players, Server
 	private Set<String> connectedServers;
 	public static String serverName;
+	private ServiceHandler service;
 	
 	public MercuryAPI(){
+		try {
+			Class.forName("org.bukkit.Bukkit");
+			service = MercuryPlugin.handler;
+		} catch (ClassNotFoundException e) {
+			MercuryConfigManager.initialize();
+			service = ServiceManager.getService();
+		}
 		instance = this;
 		onlineAllServers = new HashMap<String, String>();
 		connectedServers = new TreeSet<String>();
-		serverName = MercuryPlugin.name;
+		serverName = MercuryConfigManager.getServerName();
 	}
 	/**
 	 * Allows plugins to register a channel to themselves.
@@ -33,7 +41,7 @@ public class MercuryAPI{
 	 * @param channel- The channel in question.
 	 */
 	public void registerPluginMessageChannel(String... channels){
-		this.plugin.addChannels(channels);
+		this.service.addChannels(channels);
 	}
 	/**
 	 * Sets all the players on a server.
@@ -72,7 +80,7 @@ public class MercuryAPI{
 	}
 	
 	public void sendMessage(String dest, String message, String... channels){
-		plugin.sendMessage(dest, message, channels);
+		service.sendMessage(dest, message, channels);
 	}
 	
 	/**
