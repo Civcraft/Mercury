@@ -22,21 +22,23 @@ public class MercuryAPI{
 	private ServiceHandler service;
 	
 	public MercuryAPI(){
+		instance = this;
 		try {
 			Class.forName("org.bukkit.Bukkit");
 			service = MercuryPlugin.handler;
 		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 			MercuryConfigManager.initialize();
 			MercuryBungePlugin.plugin.getProxy().getScheduler().runAsync(MercuryBungePlugin.plugin, new Runnable(){
 
 				@Override
 				public void run() {
 					service = ServiceManager.getService();
+					service = MercuryBungePlugin.enableService();
 				}
 				
 			});
 		}
-		instance = this;
 		onlineAllServers = new HashMap<String, String>();
 		connectedServers = new TreeSet<String>();
 		serverName = MercuryConfigManager.getServerName();
