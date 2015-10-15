@@ -33,7 +33,6 @@ public class MercuryAPI{
 
 				@Override
 				public void run() {
-					service = ServiceManager.getService();
 					service = MercuryBungePlugin.enableService();
 				}
 				
