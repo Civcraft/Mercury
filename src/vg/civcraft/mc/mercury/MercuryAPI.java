@@ -27,7 +27,14 @@ public class MercuryAPI{
 			service = MercuryPlugin.handler;
 		} catch (ClassNotFoundException e) {
 			MercuryConfigManager.initialize();
-			service = ServiceManager.getService();
+			MercuryBungePlugin.plugin.getProxy().getScheduler().runAsync(MercuryBungePlugin.plugin, new Runnable(){
+
+				@Override
+				public void run() {
+					service = ServiceManager.getService();
+				}
+				
+			});
 		}
 		instance = this;
 		onlineAllServers = new HashMap<String, String>();

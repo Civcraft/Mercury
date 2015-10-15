@@ -4,7 +4,9 @@ import net.md_5.bungee.api.plugin.Plugin;
 
 public class MercuryBungePlugin extends Plugin{
 
-	public void onEnable(){ 
+	public static MercuryBungePlugin plugin;
+	public void onEnable() {
+		plugin = this;
 		new MercuryAPI();
 	}
 }
