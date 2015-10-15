@@ -27,20 +27,16 @@ public class MercuryAPI{
 			Class.forName("org.bukkit.Bukkit");
 			service = MercuryPlugin.handler;
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
 			MercuryConfigManager.initialize();
-			MercuryBungePlugin.plugin.getProxy().getScheduler().runAsync(MercuryBungePlugin.plugin, new Runnable(){
-
-				@Override
-				public void run() {
-					service = MercuryBungePlugin.enableService();
-				}
-				
-			});
+			MercuryBungee.enableService(this);
 		}
 		onlineAllServers = new HashMap<String, String>();
 		connectedServers = new TreeSet<String>();
 		serverName = MercuryConfigManager.getServerName();
+	}
+	
+	protected void setServiceHandler(ServiceHandler service) {
+		this.service = service;
 	}
 	/**
 	 * Allows plugins to register a channel to themselves.

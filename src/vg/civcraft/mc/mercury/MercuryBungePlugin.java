@@ -9,8 +9,4 @@ public class MercuryBungePlugin extends Plugin{
 		plugin = this;
 		new MercuryAPI();
 	}
-	
-	public static ServiceHandler enableService() {
-		return ServiceManager.getService();
-	}
 }
