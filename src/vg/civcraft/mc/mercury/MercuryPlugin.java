@@ -29,6 +29,7 @@ public class MercuryPlugin extends JavaPlugin{
 			}
 		}, 100, 100);
 
+		Bukkit.getPluginManager().registerEvents(new MercuryBukkitListener(), this);
 		name = MercuryConfigManager.getServerName();
 	}
 
