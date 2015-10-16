@@ -8,6 +8,7 @@ public class MercuryBungee {
 			@Override
 			public void run() {
 				api.setServiceHandler(ServiceManager.getService());
+				api.registerPluginMessageChannel("mercury");
 			}
 			
 		});

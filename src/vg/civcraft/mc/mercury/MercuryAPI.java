@@ -33,7 +33,6 @@ public class MercuryAPI{
 		onlineAllServers = new HashMap<String, String>();
 		connectedServers = new TreeSet<String>();
 		serverName = MercuryConfigManager.getServerName();
-		registerPluginMessageChannel("mercury");
 	}
 	
 	protected void setServiceHandler(ServiceHandler service) {
