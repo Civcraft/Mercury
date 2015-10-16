@@ -3,6 +3,7 @@ package vg.civcraft.mc.mercury;
 import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,11 +14,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import vg.civcraft.mc.mercury.events.AsyncPluginBroadcastMessageEvent;
 
-public class MercuryListener implements Listener {
+public class MercuryBukkitListener implements Listener {
 	
 	private Set<String> pinged = Collections.synchronizedSet(new TreeSet<String>());
 	
-	public MercuryListener() {
+	public MercuryBukkitListener() {
 		MercuryAPI.instance.registerPluginMessageChannel("mercury");
 		MercuryAPI.instance.sendMessage("all", "whoonline "+MercuryPlugin.name, "mercury");
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(MercuryPlugin.instance, new Runnable() {
@@ -50,7 +51,7 @@ public class MercuryListener implements Listener {
 	}
 	
 	@EventHandler()
-	public void onMerucyrMessage(AsyncPluginBroadcastMessageEvent event) {
+	public void onMercuryMessage(AsyncPluginBroadcastMessageEvent event) {
 		if (!event.getChannel().equalsIgnoreCase("mercury"))
 			return;
 		String[] message = event.getMessage().split(" ");
@@ -62,7 +63,7 @@ public class MercuryListener implements Listener {
 			}
 			if (playerlist.isEmpty()){return;}
 			playerlist = playerlist.substring(0, playerlist.length()-1);
-			MercuryAPI.instance.sendMessage(message[1], "sync "+MercuryPlugin.name+" "+playerlist, "namelayer");
+			MercuryAPI.instance.sendMessage(message[1], "sync "+MercuryAPI.serverName+" "+playerlist, "namelayer");
 			MercuryPlugin.instance.getLogger().info("Responded to server '"+message[1]+"' sync request");
 			return;
 		} else if (reason.equals("login")){
@@ -90,7 +91,6 @@ public class MercuryListener implements Listener {
 			MercuryAPI.instance.addConnectedServer(server);
 			pinged.add(server);
 		}
-		
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)

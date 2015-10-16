@@ -2,6 +2,9 @@ package vg.civcraft.mc.mercury.events;
 
 import org.bukkit.Bukkit;
 
+import vg.civcraft.mc.mercury.MercuryBukkitListener;
+import vg.civcraft.mc.mercury.MercuryPlugin;
+
 public class BukkitEventManager implements EventManagerBase {
 	public BukkitEventManager() {}
 
@@ -13,6 +16,6 @@ public class BukkitEventManager implements EventManagerBase {
 
 	@Override
 	public void registerListener(EventListener listener) {
-		// Bukkit handles it's own event registration
+		// Bukkit makes its own registry.
 	}
 }
