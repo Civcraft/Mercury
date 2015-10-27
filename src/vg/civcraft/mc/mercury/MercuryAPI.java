@@ -63,9 +63,10 @@ public class MercuryAPI{
 	}
 	/**
 	 * Adds a player to the list.
-	 * @param player
+	 * @param player The player's name.
+	 * @param server The server that the player is on.
 	 */
-	public synchronized void addPlayer(String server, String player){
+	public synchronized void addPlayer(String player, String server){
 		onlineAllServers.put(player, server);
 	}
 	/**
