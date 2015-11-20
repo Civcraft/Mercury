@@ -1,0 +1,77 @@
+package vg.civcraft.mc.mercury.config;
+
+import java.io.File;
+import java.io.IOException;
+
+//import net.md_5.bungee.config.Configuration;
+import net.md_5.bungee.config.ConfigurationProvider;
+import net.md_5.bungee.config.YamlConfiguration;
+import vg.civcraft.mc.mercury.MercuryBungePlugin;
+
+
+public class BungeeConfiguration implements vg.civcraft.mc.mercury.config.Configuration {
+	public BungeeConfiguration() {
+		configFile_ = new File(MercuryBungePlugin.plugin.getDataFolder(), "config.yml");
+		loadConfig();
+	}
+
+	public void setConfigFile(File newConfig) {
+		configFile_ = newConfig;
+	}
+
+	public void loadConfig() {
+		File parentDir = configFile_.getParentFile();
+		if (!parentDir.exists()) {
+			parentDir.mkdir();
+		}
+		configManager_ = ConfigurationProvider.getProvider(YamlConfiguration.class);
+		try {
+			config_ = configManager_.load(configFile_);
+		} catch(IOException ex) {
+			MercuryBungePlugin.plugin.getLogger().severe("Unable to load config: " + configFile_.getName());
+			config_ = new net.md_5.bungee.config.Configuration();
+		}
+	}
+
+	private net.md_5.bungee.config.Configuration config() {
+		return config_;
+	}
+
+	@Override
+	public String getHost(){
+		return config().getString("host", "localhost");
+	}
+
+	@Override
+	public String getPassword(){
+		return config().getString("password", "");
+	}
+
+	@Override
+	public Integer getPort(){
+		int val = config().getInt("port", 5672);
+		if (val < 0) {
+			return 5672;
+		}
+		return new Integer(val);
+	}
+
+	@Override
+	public String getUserName() {
+		return config().getString("username", "bukkit");
+	}
+
+	@Override
+	public String getServerName(){
+		return config().getString("servername", "");
+	}
+
+	@Override
+	public String getServiceHandler(){
+		return config().getString("service", "rabbit");
+	}
+
+	private File configFile_;
+	private ConfigurationProvider configManager_;
+	private net.md_5.bungee.config.Configuration config_;
+}

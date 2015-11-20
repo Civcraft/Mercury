@@ -8,10 +8,12 @@ public class MercuryConfigManager {
 	public static void initialize() {
 		if (MercuryConfigManager.inBukkit()) {
 			config_ = new BukkitConfiguration();
+		} else if (MercuryConfigManager.inBungee()) {
+			config_ = new BungeeConfiguration();
 		} else {
 			File file = new File("mercury_cfg.json");
 			if (!file.exists()) {
-				JsonConfiguration c = new JsonConfiguration(file.getName());
+				JsonConfiguration c = new JsonConfiguration();
 				c.save(file);
 				config_ = c;
 			}
@@ -44,20 +46,42 @@ public class MercuryConfigManager {
 		return config_.getServiceHandler();
 	}
 
-	public static boolean inBukkit() {
-		if (MercuryConfigManager.inBukkit_ != null) {
-			return inBukkit_.booleanValue();
+	public static ServerType getServerType() {
+		if (MercuryConfigManager.serverType_ != null) {
+			return MercuryConfigManager.serverType_;
 		}
 		try {
 			Class.forName("org.bukkit.Bukkit");
-			inBukkit_ = new Boolean(true);
-			return true;
-		} catch(ClassNotFoundException ex) {
-			inBukkit_ = new Boolean(false);
-			return false;
-		}
+			MercuryConfigManager.serverType_ = ServerType.Bukkit;
+			return ServerType.Bukkit;
+		} catch(ClassNotFoundException ex) {}
+		try {
+			Class.forName("net.md_5.bungee.BungeeCord");
+			MercuryConfigManager.serverType_ = ServerType.Bungee;
+			return ServerType.Bungee;
+		} catch(ClassNotFoundException ex) {}
+		MercuryConfigManager.serverType_ = ServerType.Standalone;
+		return ServerType.Standalone;
 	}
 
+	public static boolean inBukkit() {
+		return MercuryConfigManager.getServerType() == ServerType.Bukkit;
+	}
+
+	public static boolean inBungee() {
+		return MercuryConfigManager.getServerType() == ServerType.Bungee;
+	}
+
+	public static boolean isStandalone() {
+		return MercuryConfigManager.getServerType() == ServerType.Standalone;
+	}
+
+	public enum ServerType {
+		Bukkit,
+		Bungee,
+		Standalone,
+	};
+
 	private static Configuration config_ = null;
-	private static Boolean inBukkit_ = null;
+	private static ServerType serverType_ = null;
 }

@@ -32,7 +32,7 @@ public class BukkitConfiguration implements Configuration {
 
 	@Override
 	public String getServerName(){
-		return config().getString("server-name", null);
+		return config().getString("servername", null);
 	}
 
 	@Override

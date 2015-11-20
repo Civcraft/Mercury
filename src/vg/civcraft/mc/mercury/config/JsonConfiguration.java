@@ -9,77 +9,42 @@ import com.google.gson.GsonBuilder;
 
 public class JsonConfiguration implements Configuration {
 
-	public JsonConfiguration(String fileName){
-		fileName_ = fileName;
-		//parse();
-	}
-
 	@Override
 	public String getHost(){
-		return host_;
+		return host;
 	}
 
 	@Override
 	public String getPassword(){
-		return password_;
+		return password;
 	}
 
 	@Override
 	public Integer getPort(){
-		return port_;
+		return port;
 	}
 
 	@Override
 	public String getServerName(){
-		return serverName_;
+		return servername;
 	}
 	
 	@Override
 	public String getUserName() {
-		return userName;
+		return username;
 	}
 
 	@Override
 	public String getServiceHandler(){
-		return serviceHandler_;
+		return service;
 	}
 
-	/*
-	private void parse() {
-		InputStreamReader isr = null;
-		try {
-			File file = new File(fileName_);
-			if (!file.exists())
-				file.createNewFile();
-			isr = new InputStreamReader(
-					new FileInputStream(file), "UTF-8");
-			JSONObject json = new JSONObject(new JSONTokener(isr));
-
-			host_ = getString(json, "host");
-			password_ = getString(json, "password");
-			port_ = getInt(json, "port");
-			serverName_ = getString(json, "server-name");
-			serviceHandler_ = getString(json, "service");
-			userName = getString(json, "username");
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		} finally {
-			if (isr != null) {
-				try {
-					isr.close();
-				} catch (IOException ex) {
-				}
-			}
-		}
-	}
-	*/
-	
 	public static JsonConfiguration load(File file) {
 		Gson gson = new Gson();
 		try {
 			return (JsonConfiguration) gson.fromJson(new FileReader(file), JsonConfiguration.class);
 		} catch (Exception e) {
-			return new JsonConfiguration(file.getAbsolutePath());
+			return new JsonConfiguration();
 		}
 	}
 	
@@ -96,11 +61,10 @@ public class JsonConfiguration implements Configuration {
 		}
 	}
 
-	private String fileName_ = null;
-	private String host_ = "localhost";
-	private String password_ = "";
-	private Integer port_ = 0;
-	private String serverName_ = "";
-	private String serviceHandler_ = "rabbitmq";
-	private String userName = "bukkit";
+	private String service = "rabbit";
+	private String servername = "";
+	private String host = "localhost";
+	private Integer port = 5672;
+	private String username = "bukkit";
+	private String password = "";
 }
