@@ -1,21 +1,25 @@
 package vg.civcraft.mc.mercury.rabbitmq;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import vg.civcraft.mc.mercury.events.EventManager;
 
 import com.rabbitmq.client.Channel;
+// import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.ConsumerCancelledException;
 import com.rabbitmq.client.QueueingConsumer;
 import com.rabbitmq.client.ShutdownSignalException;
 
-public class RabbitListenerThread extends Thread{
+public class RabbitListenerThread extends Thread {
 
 	private final RabbitHandler parent;
 	private final Channel chan;
 	private final QueueingConsumer consumer;
 	private final String queue;
 	private boolean running = false;
+	private Map<String, String> channelMap_ = new HashMap<String, String>();
 
 	public RabbitListenerThread(RabbitHandler parent, Channel chan, String queue){
 		this.parent = parent;
@@ -36,13 +40,40 @@ public class RabbitListenerThread extends Thread{
 
 	private void processNextDelivery() {
 		try {
-			QueueingConsumer.Delivery delivery = consumer.nextDelivery();
-			String channel = delivery.getEnvelope().getExchange();
-			String message = new String(delivery.getBody());
-			EventManager.fireMessage(channel, message);
-		} catch (ShutdownSignalException | ConsumerCancelledException
-				| InterruptedException e) {
-			// TODO Auto-generated catch block
+			QueueingConsumer.Delivery delivery = consumer.nextDelivery(100);
+			if (delivery == null) {
+				return;
+			}
+			String channelName = delivery.getEnvelope().getExchange();
+			if (channelMap_.containsKey(channelName)) {
+				channelName = channelMap_.get(channelName);
+			} else {
+				if (!channelName.startsWith("mc.")) {
+					return;
+				}
+				boolean global = channelName.endsWith(".global");
+				String newName;
+				if (global) {
+					newName = channelName.substring(3, channelName.length() - 7);
+				} else {
+					newName = channelName.substring(3);
+				}
+				channelMap_.put(channelName, newName);
+				channelName = newName;
+			}
+			String message;
+			try {
+				message = new String(delivery.getBody(), "UTF-8");
+			} catch (java.io.UnsupportedEncodingException e) {
+				e.printStackTrace();
+				return;
+			}
+			EventManager.fireMessage(channelName, message);
+		} catch (InterruptedException e) {
+			// NOP
+		} catch (ShutdownSignalException e) {
+			running = false;
+		} catch (ConsumerCancelledException e) {
 			e.printStackTrace();
 			running = false;
 		}

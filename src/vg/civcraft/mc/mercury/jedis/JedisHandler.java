@@ -53,13 +53,18 @@ public class JedisHandler implements ServiceHandler{
 	}
 	
 	@Override
-	public void sendMessage(String server, String message, String... channels){
+	public void sendMessage(String server, String message, String... pluginChannels) {
 		Jedis j = pool.getResource();
-		for (String channel: channels)
+		for (String channel: pluginChannels)
 			j.publish(channel, message);
 		j.close();
 	}
 	
+	@Override
+	public void sendGlobalMessage(String message, String... pluginChannels) {
+		throw new UnsupportedOperationException();
+	}
+
 	@Override
 	public void addChannels(String... channels){
 		Jedis j = pool.getResource();

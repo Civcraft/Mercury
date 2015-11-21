@@ -13,7 +13,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import vg.civcraft.mc.mercury.config.MercuryConfigManager;
 
-public class MercuryAPI{
+public class MercuryAPI {
 
 	public static MercuryAPI instance;
 	private static HashMap<String, String> onlineAllServers; // Players, Server
@@ -88,6 +88,10 @@ public class MercuryAPI{
 		service.sendMessage(dest, message, channels);
 	}
 	
+	public void sendGlobalMessage(String message, String... channels){
+		service.sendGlobalMessage(message, channels);
+	}
+
 	/**
 	 * Gets all connected servers.
 	 * @return Returns a list of servers that are connected.
