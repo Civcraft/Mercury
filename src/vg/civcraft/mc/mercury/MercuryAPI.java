@@ -23,16 +23,19 @@ public class MercuryAPI {
 	
 	public MercuryAPI(){
 		instance = this;
-		try {
-			Class.forName("org.bukkit.Bukkit");
+		MercuryConfigManager.initialize();
+		serverName = MercuryConfigManager.getServerName();
+		service = null;
+		if (MercuryConfigManager.inBukkit()) {
 			service = MercuryPlugin.handler;
-		} catch (ClassNotFoundException e) {
-			MercuryConfigManager.initialize();
+		} else if (MercuryConfigManager.inBungee()) {
 			MercuryBungee.enableService(this);
+		} else {
+			service = ServiceManager.getService();
 		}
+
 		onlineAllServers = new HashMap<String, String>();
 		connectedServers = new TreeSet<String>();
-		serverName = MercuryConfigManager.getServerName();
 	}
 	
 	protected void setServiceHandler(ServiceHandler service) {
@@ -90,6 +93,10 @@ public class MercuryAPI {
 	
 	public void sendGlobalMessage(String message, String... channels){
 		service.sendGlobalMessage(message, channels);
+	}
+
+	public void addChannels(String... pluginChannels) {
+		service.addChannels(pluginChannels);
 	}
 
 	/**

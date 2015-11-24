@@ -1,7 +1,9 @@
 package vg.civcraft.mc.mercury.rabbitmq;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
@@ -20,15 +22,18 @@ public class RabbitHandler implements ServiceHandler {
 	private Connection con_;
 	private Channel chan_;
 	private String queueName_;
-	private Set<String> exchanges_ = new HashSet<String>();
+	private Set<String> exchanges_ = new HashSet<>();
+	private Map<String, RabbitConsumer> consumers_ = new HashMap<>();
 	private String serverName_;
-	private RabbitListenerThread thread_ = null;
 
 	public RabbitHandler() {
 		serverName_ = MercuryAPI.serverName;
-		addServerToServerList();
 		enableRabbit();
+		addServerToServerList();
 	}
+
+	@Override
+	public void destory() {}
 
 	@Override
 	public boolean isEnabled() {
@@ -37,12 +42,12 @@ public class RabbitHandler implements ServiceHandler {
 
 	@Override
 	public void pingService() {
-		MercuryAPI.instance.sendMessage(serverName_, "ping", "mercury.ping");
+		sendMessage(serverName_, "ping", "mercury.ping");
 	}
 
 	@Override
 	public void addServerToServerList() {
-		MercuryAPI.instance.sendGlobalMessage(serverName_, "mercury.newserver");
+		sendGlobalMessage(serverName_, "mercury.newserver");
 	}
 
 	@Override
@@ -89,7 +94,7 @@ public class RabbitHandler implements ServiceHandler {
 		exchanges_.add(exchangeName);
 
 		// Global message exchange
-		exchangeName = pluginChannelName + ".global";
+		exchangeName = exchangeName + ".global";
 		chan_.exchangeDeclare(
 				exchangeName,  // Exchange name
 				"fanout",      // type
@@ -114,23 +119,7 @@ public class RabbitHandler implements ServiceHandler {
 			}
 	}
 
-	@Override
-	public void destory() {
-		thread_.disable();
-		try {
-			thread_.join();
-		} catch (InterruptedException e) {}
-		try {
-			con_.close();
-			chan_.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-			con_ = null;
-			chan_ = null;
-		}
-	}
-
-	private void enableRabbit(){
+	private void enableRabbit() {
 		if (!exchanges_.isEmpty()) {
 			exchanges_ = new HashSet<String>();
 		}
@@ -152,14 +141,9 @@ public class RabbitHandler implements ServiceHandler {
 				true,   // auto-delete
 				null    // queue properties
 				);
-			if (thread_ != null) {
-				thread_.disable();
-				try {
-					thread_.join();
-				} catch (InterruptedException e) {}
-			}
-			thread_ = new RabbitListenerThread(this, chan_, queueName_);
-			thread_.start();
+			RabbitConsumer consumer = new RabbitConsumer(this, chan_, queueName_);
+			chan_.basicConsume(queueName_, true, consumer);
+			consumers_.put(queueName_, consumer);
 		} catch (IOException e) {
 			e.printStackTrace();
 			con_ = null;
