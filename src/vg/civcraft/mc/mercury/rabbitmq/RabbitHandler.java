@@ -32,6 +32,10 @@ public class RabbitHandler implements ServiceHandler {
 		addServerToServerList();
 	}
 
+	public String serverName() {
+		return serverName_;
+	}
+
 	@Override
 	public void destory() {}
 
@@ -57,7 +61,15 @@ public class RabbitHandler implements ServiceHandler {
 			try {
 				if (!chan_.isOpen()) // Incase we somehow loose connection.
 					enableRabbit();
-				chan_.basicPublish(realChanName, server, null, message.getBytes("UTF-8"));
+				Map<String, Object> headers = new HashMap(1);
+				headers.put("ORIGIN_SERVER", serverName_);
+				chan_.basicPublish(
+						realChanName,                // exchange
+						server,                      // routingKey
+						(new AMQP.BasicProperties.Builder())  // props
+								.headers(headers)
+								.build(),
+						message.getBytes("UTF-8"));  // body
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -72,7 +84,15 @@ public class RabbitHandler implements ServiceHandler {
 			try {
 				if (!chan_.isOpen()) // Incase we somehow loose connection.
 					enableRabbit();
-				chan_.basicPublish(realChanName, "", null, message.getBytes("UTF-8"));
+				Map<String, Object> headers = new HashMap(1);
+				headers.put("ORIGIN_SERVER", serverName_);
+				chan_.basicPublish(
+						realChanName,                // exchange
+						""    ,                      // routingKey
+						(new AMQP.BasicProperties.Builder())  // props
+								.headers(headers)
+								.build(),
+						message.getBytes("UTF-8"));  // body
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

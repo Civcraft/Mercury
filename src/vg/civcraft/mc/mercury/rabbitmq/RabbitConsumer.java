@@ -27,6 +27,14 @@ public class RabbitConsumer extends DefaultConsumer {
 
 	@Override
 	public void handleDelivery(java.lang.String consumerTag, Envelope envelope, BasicProperties properties, byte[] body) {
+			final Object originServerObj = properties.getHeaders().get("ORIGIN_SERVER");
+			if (originServerObj != null) {
+				final String originServer = originServerObj.toString();
+				if (originServer.equals(handler_.serverName())) {
+					// Don't deliver a message to oneself
+					return;
+				}
+			}
 			String channelName = envelope.getExchange();
 			if (channelMap_.containsKey(channelName)) {
 				channelName = channelMap_.get(channelName);
