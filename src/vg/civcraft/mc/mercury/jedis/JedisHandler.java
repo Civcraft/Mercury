@@ -72,7 +72,12 @@ public class JedisHandler implements ServiceHandler{
 		j.subscribe(listen, channels);
 		j.close();
 	}
-	
+
+	@Override
+	public void addBroadcastOnlyChannels(String... pluginChannels) {
+		addChannels(pluginChannels);
+	}
+
 	private void enableJedis(){
 		JedisPoolConfig config = new JedisPoolConfig();
 		config.setMaxTotal(128);

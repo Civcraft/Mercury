@@ -17,5 +17,12 @@ public class BukkitEventManager implements EventManagerBase {
 	@Override
 	public void registerListener(EventListener listener) {
 		// Bukkit makes its own registry.
+		throw new UnsupportedOperationException("Please use the Bukkit event system and AsyncPluginBroadcastMessageEvent");
+	}
+
+	@Override
+	public void registerListener(EventListener listener, String ... channels) {
+		// Bukkit makes its own registry.
+		throw new UnsupportedOperationException("Please use the Bukkit event system and AsyncPluginBroadcastMessageEvent");
 	}
 }

@@ -44,6 +44,11 @@ public class VenusHandler implements ServiceHandler {
 	public void addChannels(String... channels) {}
 
 	@Override
+	public void addBroadcastOnlyChannels(String... pluginChannels) {
+		addChannels(pluginChannels);
+	}
+
+	@Override
 	public void destory() {
 		if (service != null)
 			service.teardown();

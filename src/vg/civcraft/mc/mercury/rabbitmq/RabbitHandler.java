@@ -100,30 +100,33 @@ public class RabbitHandler implements ServiceHandler {
 		}
 	}
 
-	private void registerExchangesFor(String pluginChannelName) throws IOException {
-		// Direct message exchange
-		String exchangeName = "mc." + pluginChannelName;
-		chan_.exchangeDeclare(
-				exchangeName,  // Exchange name
-				"direct",      // type
-				false,         // durable
-				true,          // auto-delete
-				false,         // internal
-				null);         // arguments
-		chan_.queueBind(queueName_, exchangeName, serverName_);
-		exchanges_.add(exchangeName);
-
+	private void registerExchangesFor(boolean broadcastOnly, String pluginChannelName) throws IOException {
 		// Global message exchange
-		exchangeName = exchangeName + ".global";
+		String exchangeName = "mc." + pluginChannelName;
+		String globalExchangeName = exchangeName + ".global";
 		chan_.exchangeDeclare(
-				exchangeName,  // Exchange name
-				"fanout",      // type
-				false,         // durable
-				true,          // auto-delete
-				false,         // internal
-				null);         // arguments
-		chan_.queueBind(queueName_, exchangeName, "");
-		exchanges_.add(exchangeName);
+				globalExchangeName,  // Exchange name
+				"fanout",            // type
+				false,               // durable
+				true,                // auto-delete
+				false,               // internal
+				null);               // arguments
+		exchanges_.add(globalExchangeName);
+
+		if (!broadcastOnly) {
+			chan_.queueBind(queueName_, globalExchangeName, "");
+
+			// Direct message exchange
+			chan_.exchangeDeclare(
+					exchangeName,  // Exchange name
+					"direct",      // type
+					false,         // durable
+					true,          // auto-delete
+					false,         // internal
+					null);         // arguments
+			chan_.queueBind(queueName_, exchangeName, serverName_);
+			exchanges_.add(exchangeName);
+		}
 	}
 
 	@Override
@@ -132,7 +135,20 @@ public class RabbitHandler implements ServiceHandler {
 			try {
 				if (!chan_.isOpen()) // Incase we somehow loose connection.
 					enableRabbit();
-				registerExchangesFor(pluginChannelName);
+				registerExchangesFor(false, pluginChannelName);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
+
+	@Override
+	public void addBroadcastOnlyChannels(String... pluginChannels) {
+		for (final String pluginChannelName : pluginChannels)
+			try {
+				if (!chan_.isOpen()) // Incase we somehow loose connection.
+					enableRabbit();
+				registerExchangesFor(true, pluginChannelName);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

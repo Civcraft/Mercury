@@ -99,6 +99,10 @@ public class MercuryAPI {
 		service.addChannels(pluginChannels);
 	}
 
+	public void addBroadcastOnlyChannels(String... pluginChannels) {
+		service.addBroadcastOnlyChannels(pluginChannels);
+	}
+
 	/**
 	 * Gets all connected servers.
 	 * @return Returns a list of servers that are connected.
