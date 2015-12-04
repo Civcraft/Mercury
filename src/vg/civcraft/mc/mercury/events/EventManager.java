@@ -19,6 +19,10 @@ public class EventManager {
 		eventMgr_.registerListener(listener);
 	}
 
+	public static void registerListener(EventListener listener, String ... channels) {
+		eventMgr_.registerListener(listener, channels);
+	}
+
 	private EventManager() {}
 
 	private static final EventManagerBase eventMgr_;
