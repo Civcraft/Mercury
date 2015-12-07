@@ -1,5 +1,7 @@
 package vg.civcraft.mc.mercury.config;
 
+import java.util.concurrent.ThreadFactory;
+
 public interface Configuration {
 	String getHost();
 	String getPassword();
@@ -7,4 +9,5 @@ public interface Configuration {
 	String getServerName();
 	String getServiceHandler();
 	String getUserName();
+	ThreadFactory getThreadFactory();
 }

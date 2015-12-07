@@ -6,13 +6,15 @@
 	<groupId>vg.civcraft.mc.mercury</groupId>
 	<artifactId>Mercury</artifactId>
 	<packaging>jar</packaging>
-	<version>1.1.94</version>
+	<version>1.1.95</version>
 	<name>Mercury</name>
 	<url>https://github.com/Civcraft/Mercury</url>
 
 	<properties>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 
 	<build>
@@ -29,6 +31,17 @@
 		</resources>
 
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.3</version>
+				<configuration>
+					<compilerArgs>
+						<arg>-Xlint:all</arg>
+					</compilerArgs>
+				</configuration>
+			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
@@ -75,7 +88,7 @@
 		<dependency>
 			<groupId>com.rabbitmq</groupId>
 			<artifactId>amqp-client</artifactId>
-			<version>3.4.4</version>
+			<version>3.5.6</version>
 		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>

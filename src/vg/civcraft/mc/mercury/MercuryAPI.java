@@ -6,116 +6,214 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
-
-import org.bukkit.plugin.java.JavaPlugin;
+import java.util.logging.Logger;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import vg.civcraft.mc.mercury.config.MercuryConfigManager;
+import vg.civcraft.mc.mercury.events.EventListener;
+import vg.civcraft.mc.mercury.events.EventManager;
 
 public class MercuryAPI {
 
 	public static MercuryAPI instance;
-	private static HashMap<String, String> onlineAllServers; // Players, Server
-	private Set<String> connectedServers;
-	public static String serverName;
-	private ServiceHandler service;
-	
-	public MercuryAPI(){
-		instance = this;
-		MercuryConfigManager.initialize();
-		serverName = MercuryConfigManager.getServerName();
-		service = null;
-		if (MercuryConfigManager.inBukkit()) {
-			service = MercuryPlugin.handler;
-		} else if (MercuryConfigManager.inBungee()) {
-			MercuryBungee.enableService(this);
-		} else {
-			service = ServiceManager.getService();
-		}
 
-		onlineAllServers = new HashMap<String, String>();
-		connectedServers = new TreeSet<String>();
+	public static void initialize() {
+		if (MercuryAPI.instance != null) {
+			return;
+		}
+		MercuryAPI.instance = new MercuryAPI();
+		MercuryAPI.instance.internalInitialize();
 	}
-	
-	protected void setServiceHandler(ServiceHandler service) {
-		this.service = service;
+
+	public static void shutdown() {
+		MercuryAPI.instance.service_.destory();
 	}
+
+	public static void info(String msg) {
+		MercuryAPI.instance.log_.info(msg);
+	}
+
+	public static void info(String msg, Object ... params) {
+		MercuryAPI.instance.log_.info(String.format(msg, params));
+	}
+
+	public static void warn(String msg) {
+		MercuryAPI.instance.log_.warning(msg);
+	}
+
+	public static void warn(String msg, Object ... params) {
+		MercuryAPI.instance.log_.warning(String.format(msg, params));
+	}
+
+	public static void err(String msg) {
+		MercuryAPI.instance.log_.severe(msg);
+	}
+
+	public static void err(String msg, Object ... params) {
+		MercuryAPI.instance.log_.severe(String.format(msg, params));
+	}
+
+	public static String serverName() {
+		return MercuryAPI.instance.serverName_;
+	}
+
 	/**
 	 * Allows plugins to register a channel to themselves.
 	 * Please register all channels as once, each plugin get's its own listener.
 	 * @param plugin- The plugin in question.
 	 * @param channel- The channel in question.
 	 */
-	public void registerPluginMessageChannel(String... channels){
-		this.service.addChannels(channels);
+	public static void registerPluginMessageChannel(String... channels){
+		MercuryAPI.instance.service_.addChannels(channels);
 	}
+
 	/**
 	 * Sets all the players on a server.
 	 * @param players
 	 */
-	public synchronized void setAllPlayers(String server, List<String> players){
-		for (String player: players)
-			onlineAllServers.put(player, server);
+	public static void setAllPlayers(List<PlayerDetails> players){
+		synchronized (MercuryAPI.instance.playersByUUID_) {
+			for (PlayerDetails player: players) {
+				MercuryAPI.instance.playersByUUID_.put(player.getAccountId(), player);
+			}
+		}
 	}
+
 	/**
 	 * Returns the server that a player is on.
 	 */
-	public synchronized String getServerforPlayer(String player) {
-		return onlineAllServers.get(player);
+	public static PlayerDetails getServerforAccount(UUID accountId) {
+		synchronized (MercuryAPI.instance.playersByUUID_) {
+			return MercuryAPI.instance.playersByUUID_.get(accountId);
+		}
 	}
+
 	/**
 	 * Adds a player to the list.
 	 * @param player The player's name.
 	 * @param server The server that the player is on.
 	 */
-	public synchronized void addPlayer(String player, String server){
-		onlineAllServers.put(player, server);
+	public static void addPlayer(UUID accountId, String player, String server) {
+		addPlayer(new PlayerDetails(accountId, player, server));
 	}
+
+	public static void addPlayer(PlayerDetails details) {
+		synchronized (MercuryAPI.instance.playersByUUID_) {
+			MercuryAPI.instance.playersByUUID_.put(details.getAccountId(), details);
+		}
+	}
+
 	/**
 	 * Removes a player from the list.
 	 * @param player
 	 */
-	public synchronized void removePlayer(String player){
-		onlineAllServers.remove(player);
+	public static void removeAccount(UUID accountId){
+		synchronized (MercuryAPI.instance.playersByUUID_) {
+			MercuryAPI.instance.playersByUUID_.remove(accountId);
+		}
 	}
+
 	/**
 	 * Get all players connected to all servers.
 	 * @return
 	 */
-	public Set<String> getAllPlayers(){
-		return onlineAllServers.keySet();
-	}
-	
-	public void sendMessage(String dest, String message, String... channels){
-		service.sendMessage(dest, message, channels);
-	}
-	
-	public void sendGlobalMessage(String message, String... channels){
-		service.sendGlobalMessage(message, channels);
+	public static Set<UUID> getAllAccounts(){
+		synchronized (MercuryAPI.instance.playersByUUID_) {
+			return MercuryAPI.instance.playersByUUID_.keySet();
+		}
 	}
 
-	public void addChannels(String... pluginChannels) {
-		service.addChannels(pluginChannels);
+	public static boolean isKnownAccount(UUID accountId) {
+		synchronized (MercuryAPI.instance.playersByUUID_) {
+			return MercuryAPI.instance.playersByUUID_.containsKey(accountId);
+		}
 	}
 
-	public void addBroadcastOnlyChannels(String... pluginChannels) {
-		service.addBroadcastOnlyChannels(pluginChannels);
+	public static void sendMessage(String dest, String message, String... channels){
+		MercuryAPI.instance.service_.sendMessage(dest, message, channels);
+	}
+
+	public static void addServerToServerList() {
+		MercuryAPI.instance.service_.addServerToServerList();
+	}
+
+	public static void pingService() {
+		MercuryAPI.instance.service_.pingService();
+	}
+
+	public static void sendGlobalMessage(String message, String... channels){
+		MercuryAPI.instance.service_.sendGlobalMessage(message, channels);
+	}
+
+	public static void addChannels(String... pluginChannels) {
+		MercuryAPI.instance.service_.addChannels(pluginChannels);
+	}
+
+	public static void addGlobalChannels(String... pluginChannels) {
+		MercuryAPI.instance.service_.addGlobalChannels(pluginChannels);
+	}
+
+	public static void registerListener(EventListener listener) {
+		EventManager.registerListener(listener);
+	}
+
+	public static void registerListener(EventListener listener, String ... channels) {
+		EventManager.registerListener(listener, channels);
 	}
 
 	/**
 	 * Gets all connected servers.
 	 * @return Returns a list of servers that are connected.
 	 */
-	public synchronized Set<String> getAllConnectedServers() {
-		return connectedServers;
+	public static Set<String> getAllConnectedServers() {
+		synchronized (MercuryAPI.instance.connectedServers_) {
+			return MercuryAPI.instance.connectedServers_;
+		}
 	}
-	
-	protected synchronized void addConnectedServer(String server) {
-		connectedServers.add(server);
+
+	protected MercuryAPI() {}
+
+	protected void internalInitialize() {
+		if (MercuryConfigManager.inBukkit()) {
+			log_ = MercuryPlugin.log();
+		} else if (MercuryConfigManager.inBungee()) {
+			log_ = MercuryBungee.log();
+		} else {
+			log_ = Logger.getLogger("MercuryAPI");
+		}
+		MercuryConfigManager.initialize();
+		serverName_ = MercuryConfigManager.getServerName();
+		service_ = ServiceManager.getService();
+		playersByUUID_ = new HashMap<>();
+		connectedServers_ = new TreeSet<>();
+		MercuryAPI.info("Initialized %d", service_ == null ? 0 : 1); //XXX
 	}
-	
-	protected synchronized void removeConnectedServer(String server) {
-		connectedServers.remove(server);
+
+	protected void setServiceHandler(ServiceHandler service) {
+		service_ = service;
 	}
+
+	protected void addConnectedServer(String server) {
+		MercuryAPI.info("Server connected: %s", server);
+		synchronized (MercuryAPI.instance.connectedServers_) {
+			if (MercuryAPI.serverName().equalsIgnoreCase(server)) {
+				MercuryAPI.err("DUPLICATE SERVER NAME REGISTERED: %s", server);
+			}
+			connectedServers_.add(server);
+		}
+	}
+
+	protected void removeConnectedServer(String server) {
+		MercuryAPI.info("Server disconnected: %s", server);
+		synchronized (MercuryAPI.instance.connectedServers_) {
+			connectedServers_.remove(server);
+		}
+	}
+
+	private ServiceHandler service_;
+	private String serverName_;
+	private Logger log_;
+	private HashMap<UUID, PlayerDetails> playersByUUID_;
+	private Set<String> connectedServers_;
 }

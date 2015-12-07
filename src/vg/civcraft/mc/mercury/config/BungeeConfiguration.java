@@ -2,10 +2,16 @@ package vg.civcraft.mc.mercury.config;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ThreadFactory;
 
-//import net.md_5.bungee.config.Configuration;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
+// Bungee threading deprecated only to deter its use.
+import net.md_5.bungee.api.scheduler.GroupedThreadFactory;
+
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
+import vg.civcraft.mc.mercury.MercuryAPI;
 import vg.civcraft.mc.mercury.MercuryBungePlugin;
 
 
@@ -28,7 +34,7 @@ public class BungeeConfiguration implements vg.civcraft.mc.mercury.config.Config
 		try {
 			config_ = configManager_.load(configFile_);
 		} catch(IOException ex) {
-			MercuryBungePlugin.plugin.getLogger().severe("Unable to load config: " + configFile_.getName());
+			MercuryAPI.err("Unable to load config: " + configFile_.getName());
 			config_ = new net.md_5.bungee.config.Configuration();
 		}
 	}
@@ -71,7 +77,21 @@ public class BungeeConfiguration implements vg.civcraft.mc.mercury.config.Config
 		return config().getString("service", "rabbit");
 	}
 
+	// Bungee threading deprecated only to deter its use.
+	@SuppressWarnings("deprecation")
+	@Override
+	public ThreadFactory getThreadFactory() {
+		if (threadFactory_ == null) {
+			threadFactory_ = (new ThreadFactoryBuilder())
+				.setNameFormat("MercuryBungeeThread #%1$d")
+				.setThreadFactory(new GroupedThreadFactory(MercuryBungePlugin.plugin, "MercuryBungeeThreadPool"))
+				.build();
+		}
+		return threadFactory_;
+	}
+
 	private File configFile_;
 	private ConfigurationProvider configManager_;
 	private net.md_5.bungee.config.Configuration config_;
+	private ThreadFactory threadFactory_;
 }

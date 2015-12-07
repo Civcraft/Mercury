@@ -1,5 +1,8 @@
 package vg.civcraft.mc.mercury.config;
 
+import java.util.concurrent.ThreadFactory;
+
+import vg.civcraft.mc.mercury.MercuryAPI;
 import vg.civcraft.mc.mercury.MercuryPlugin;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -38,6 +41,11 @@ public class BukkitConfiguration implements Configuration {
 	@Override
 	public String getServiceHandler(){
 		return config().getString("service", null);
+	}
+
+	@Override
+	public ThreadFactory getThreadFactory() {
+		return null;
 	}
 
 	private ConfigurationSection config(){

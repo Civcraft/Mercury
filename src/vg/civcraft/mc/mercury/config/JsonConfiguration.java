@@ -3,6 +3,7 @@ package vg.civcraft.mc.mercury.config;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.concurrent.ThreadFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -38,6 +39,11 @@ public class JsonConfiguration implements Configuration {
 	public String getServiceHandler(){
 		return service;
 	}
+
+	@Override
+	public ThreadFactory getThreadFactory() {
+    return null;
+  }
 
 	public static JsonConfiguration load(File file) {
 		Gson gson = new Gson();

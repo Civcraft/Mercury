@@ -7,6 +7,6 @@ public interface ServiceHandler {
 	public void sendMessage(String server, String message, String... pluginChannels);
 	public void sendGlobalMessage(String message, String... pluginChannels);
 	public void addChannels(String... pluginChannels);
-	public void addBroadcastOnlyChannels(String... pluginChannels);
+	public void addGlobalChannels(String... pluginChannels);
 	public void destory();
 }

@@ -1,8 +1,12 @@
 package vg.civcraft.mc.mercury;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -19,87 +23,162 @@ public class MercuryBukkitListener implements Listener {
 	private Set<String> pinged = Collections.synchronizedSet(new TreeSet<String>());
 	
 	public MercuryBukkitListener() {
-		MercuryAPI.instance.registerPluginMessageChannel("mercury");
-		MercuryAPI.instance.sendMessage("all", "whoonline "+MercuryPlugin.name, "mercury");
-		Bukkit.getScheduler().scheduleSyncRepeatingTask(MercuryPlugin.instance, new Runnable() {
+		MercuryAPI.registerPluginMessageChannel("mercury");
+		MercuryAPI.sendGlobalMessage(
+				String.format(
+						"whoonline|%s",
+						MercuryAPI.serverName()), "mercury");
 
+		Bukkit.getScheduler().scheduleSyncRepeatingTask(MercuryPlugin.instance, new Runnable() {
 			@Override
 			public void run() {
-				StringBuilder message = new StringBuilder();
-				message.append("sync " + MercuryPlugin.name + " ");
-				for (Player p: Bukkit.getOnlinePlayers())
-					message.append(p.getName() + ";");
-				
-				if (message.toString().split(" ").length != 3)
-					return;
-				MercuryAPI.instance.sendMessage("all", message.toString(), "mercury");
+				sendSyncResponse(MercuryAPI.serverName(), null);
 			}
-			
 		}, 10, 1200);
-		
-		Bukkit.getScheduler().scheduleSyncRepeatingTask(MercuryPlugin.instance, new Runnable() {
 
+		Bukkit.getScheduler().scheduleSyncRepeatingTask(MercuryPlugin.instance, new Runnable() {
 			@Override
 			public void run() {
-				for (String server: MercuryAPI.instance.getAllConnectedServers())
-					if (!pinged.contains(server))
+				for (String server : MercuryAPI.getAllConnectedServers()) {
+					if (!pinged.contains(server)) {
 						MercuryAPI.instance.removeConnectedServer(server);
+					}
+				}
 				pinged.clear();
 			}
-			
 		}, 100, 200);
+	}
+
+	public void sendSyncResponse(String thisServer, String remoteServer) {
+		final Collection<? extends Player> playerList = Bukkit.getOnlinePlayers();
+		final List<PlayerDetails> details = new ArrayList<>(playerList.size());
+		for (Player p : playerList) {
+			details.add(new PlayerDetails(p.getUniqueId(), p.getDisplayName(), thisServer));
+		}
+		if (details.isEmpty()) {
+			return;
+		}
+		final String listJson = PlayerDetails.serializeList(details);
+		if (listJson == null) {
+			MercuryAPI.err("Unable to generate player list for whoonline reponse");
+			return;
+		}
+		final String syncMessage = String.format(
+				"sync|%s|%s",
+				thisServer,
+				listJson);
+		if (remoteServer == null) {
+			MercuryAPI.sendGlobalMessage(syncMessage, "namelayer");
+			MercuryAPI.info("Broadcasted sync request");
+		} else {
+			MercuryAPI.sendMessage(remoteServer, syncMessage, "namelayer");
+			MercuryAPI.info("Responded to server %s sync request", remoteServer);
+		}
 	}
 	
 	@EventHandler()
 	public void onMercuryMessage(AsyncPluginBroadcastMessageEvent event) {
-		if (!event.getChannel().equalsIgnoreCase("mercury"))
+		if (!event.getChannel().equalsIgnoreCase("mercury")) {
 			return;
-		String[] message = event.getMessage().split(" ");
-		String reason = message[0];
+		}
+		final String msg = event.getMessage();
+		String[] message = msg.split("|", 3);
+		if (message.length < 2) {
+			// Malformed
+			MercuryAPI.warn("Malformed message: %s", msg);
+			return;
+		}
+		final String thisServer = MercuryAPI.serverName();
+		final String reason = message[0];
+		final String remoteServer = message[1];
+		final String remainder = message.length >= 3 ? message[2] : null;
 		if (reason.equals("whoonline")){
-			String playerlist = "";
-			for(Player p : Bukkit.getOnlinePlayers()){
-				playerlist = playerlist+p.getDisplayName()+";";
+			sendSyncResponse(thisServer, remoteServer);
+			return;
+		}
+		if (reason.equals("sync")){
+			// Data format: sync|serverName|jsonPlayerDetails
+			final List<PlayerDetails> playerList = PlayerDetails.deserializeList(remainder);
+			if (playerList == null) {
+				MercuryAPI.warn("Malformed message: %s", msg);
+				return;
 			}
-			if (playerlist.isEmpty()){return;}
-			playerlist = playerlist.substring(0, playerlist.length()-1);
-			MercuryAPI.instance.sendMessage(message[1], "sync "+MercuryAPI.serverName+" "+playerlist, "namelayer");
-			MercuryPlugin.instance.getLogger().info("Responded to server '"+message[1]+"' sync request");
-			return;
-		} else if (reason.equals("login")){
-			MercuryAPI.instance.addPlayer(message[2].toLowerCase(), message[1]);
-			MercuryPlugin.instance.getLogger().info("Player "+message[2]+" has logged in on server: "+message[1]);
-			return;
-		} else if (reason.equals("logoff")){
-			MercuryAPI.instance.removePlayer(message[2]);
-			MercuryPlugin.instance.getLogger().info("Player "+message[2]+" has logged off on server: "+message[1]);
-			return;
-		} else if (reason.equals("sync")){
-			String[] players = message[2].split(";");
 			String allsynced = "";
-			for (String player : players){
-				if (!MercuryAPI.instance.getAllPlayers().contains(player))
-					MercuryAPI.instance.addPlayer(player.toLowerCase(), message[1]);
-				allsynced = allsynced+player+" ,";
+			for (PlayerDetails details : playerList) {
+				MercuryAPI.addPlayer(details);
+				allsynced = allsynced + details.getPlayerName() + " ,";
 			}
-			if (allsynced.isEmpty()){return;}
+			if (allsynced.isEmpty()) {
+				return;
+			}
 			allsynced = allsynced.substring(0, allsynced.length()-2);
-			MercuryPlugin.instance.getLogger().info("Synced players from '"+message[1]+"': "+allsynced);
+			MercuryAPI.info("Synced players from %s: %s", remoteServer, allsynced);
 			return;
-		} else if (reason.equals("ping")){
-			String server = message[1];
-			MercuryAPI.instance.addConnectedServer(server);
-			pinged.add(server);
+		}
+		if (reason.equals("ping")){
+			// Data format: ping|serverName
+			MercuryAPI.instance.addConnectedServer(remoteServer);
+			pinged.add(remoteServer);
+			return;
+		}
+
+		if (remainder != null) {
+			message = remainder.split("|");
+		} else {
+			message = null;
+		}
+
+		if (reason.equals("login")){
+			// Data format: login|serverName|playerUUID|playerName
+			if (message == null || message.length < 2) {
+				MercuryAPI.warn("Malformed message: %s", msg);
+				return;
+			}
+			final String playerUUID = message[0];
+			final String playerName = message[1];
+			try {
+				UUID accountId = UUID.fromString(playerUUID);
+				MercuryAPI.addPlayer(accountId, playerName, remoteServer);
+				MercuryAPI.info("Player %s (%s) has logged in on server %s", playerName, playerUUID, remoteServer);
+			} catch (Exception ex) {}
+			return;
+		}
+		if (reason.equals("logoff")){
+			// Data format: logoff|serverName|playerUUID|playerName
+			if (message == null || message.length < 2) {
+				MercuryAPI.warn("Malformed message: %s", msg);
+				return;
+			}
+			final String playerUUID = message[0];
+			final String playerName = message[1];
+			try {
+				UUID accountId = UUID.fromString(playerUUID);
+				MercuryAPI.removeAccount(accountId);
+				MercuryAPI.info("Player %s (%s) has logged off on server %s", playerName, playerUUID, remoteServer);
+			} catch (Exception ex) {}
+			return;
 		}
 	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onLogin(PlayerJoinEvent event){
-		MercuryPlugin.handler.sendMessage("all", "login "+MercuryPlugin.name+" "+event.getPlayer().getDisplayName(), "mercury");
+		MercuryAPI.sendGlobalMessage(
+				String.format(
+						"login|%s|%s|%s",
+						MercuryAPI.serverName(),
+						event.getPlayer().getUniqueId().toString(),
+						event.getPlayer().getDisplayName()),
+				"mercury");
 	}
-	
+
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onLogoff(PlayerQuitEvent event){
-		MercuryPlugin.handler.sendMessage("all", "logoff "+MercuryPlugin.name+" "+event.getPlayer().getDisplayName(), "mercury");
+		MercuryAPI.sendGlobalMessage(
+				String.format(
+						"logoff|%s|%s|%s",
+						MercuryAPI.serverName(),
+						event.getPlayer().getUniqueId().toString(),
+						event.getPlayer().getName()),
+				"mercury");
 	}
 }

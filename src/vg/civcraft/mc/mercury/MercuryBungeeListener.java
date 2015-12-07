@@ -1,58 +1,86 @@
 package vg.civcraft.mc.mercury;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import vg.civcraft.mc.mercury.events.EventListener;
 
 public class MercuryBungeeListener implements EventListener {
 
-	private Set<String> pinged = Collections.synchronizedSet(new TreeSet<String>());
-	
-	public MercuryBungeeListener() {
-		MercuryBungePlugin.plugin.getProxy().getScheduler().schedule(MercuryBungePlugin.plugin, new Runnable(){
-
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		}, 10, 5, TimeUnit.SECONDS);
-	}
-	
 	@Override
-	public void receiveMessage(String channel, String mes) {
-		if (!channel.equalsIgnoreCase("mercury"))
+	public void receiveMessage(String channel, String msg) {
+		if (!channel.equalsIgnoreCase("mercury")) {
 			return;
-		String[] message = mes.split(" ");
-		String reason = message[0];
-		if (reason.equals("login")){
-			MercuryAPI.instance.addPlayer(message[2].toLowerCase(), message[1]);
-			//MercuryPlugin.instance.getLogger().info("Player "+message[2]+" has logged in on server: "+message[1]);
+		}
+		MercuryAPI.info("Message: %s", msg); //XXX
+		String[] message = msg.split("|", 3);
+		if (message.length < 2) {
+			// Malformed
+			MercuryAPI.warn("Malformed message: %s", msg);
 			return;
-		} else if (reason.equals("logoff")){
-			MercuryAPI.instance.removePlayer(message[2]);
-			//MercuryPlugin.instance.getLogger().info("Player "+message[2]+" has logged off on server: "+message[1]);
-			return;
-		} else if (reason.equals("sync")){
-			String[] players = message[2].split(";");
-			String allsynced = "";
-			for (String player : players){
-				if (!MercuryAPI.instance.getAllPlayers().contains(player))
-					MercuryAPI.instance.addPlayer(player.toLowerCase(), message[1]);
-				allsynced = allsynced+player+" ,";
-			}
-			if (allsynced.isEmpty()){return;}
-			allsynced = allsynced.substring(0, allsynced.length()-2);
-			//MercuryPlugin.instance.getLogger().info("Synced players from '"+message[1]+"': "+allsynced);
-			return;
-		} else if (reason.equals("ping")){
+		}
+		final String thisServer = MercuryAPI.serverName();
+		final String reason = message[0];
+		final String remoteServer = message[1];
+		final String remainder = message.length >= 3 ? message[2] : null;
+		if (reason.equals("ping")){
 			String server = message[1];
 			MercuryAPI.instance.addConnectedServer(server);
-			pinged.add(server);
+			return;
+		}
+		if (reason.equals("sync")){
+			// Data format: sync|serverName|jsonPlayerDetails
+			final List<PlayerDetails> playerList = PlayerDetails.deserializeList(remainder);
+			if (playerList == null) {
+				MercuryAPI.warn("Malformed message: %s", msg);
+				return;
+			}
+			for (PlayerDetails details : playerList) {
+				MercuryAPI.addPlayer(details);
+			}
+			MercuryAPI.info("Synced %d players from %s", playerList.size(), remoteServer);
+			return;
+		}
+
+		if (remainder != null) {
+			message = remainder.split("|");
+		} else {
+			message = null;
+		}
+
+		if (reason.equals("login")){
+			// Data format: login|serverName|playerUUID|playerName
+			if (message == null || message.length < 2) {
+				MercuryAPI.warn("Malformed message: %s", msg);
+				return;
+			}
+			final String playerUUID = message[0];
+			final String playerName = message[1];
+			try {
+				UUID accountId = UUID.fromString(playerUUID);
+			  MercuryAPI.instance.addPlayer(accountId, playerName, remoteServer);
+			  MercuryAPI.info("Player %s has logged in on server: %s", playerName, remoteServer);
+			} catch(Exception ex) {}
+			return;
+		}
+		if (reason.equals("logoff")){
+			// Data format: logoff|serverName|playerUUID|playerName
+			if (message == null || message.length < 2) {
+				MercuryAPI.warn("Malformed message: %s", msg);
+				return;
+			}
+			final String playerUUID = message[0];
+			final String playerName = message[1];
+			try {
+				UUID accountId = UUID.fromString(playerUUID);
+				MercuryAPI.removeAccount(accountId);
+			  MercuryAPI.info("Player %s has logged off on server: %s", playerName, remoteServer);
+			} catch(Exception ex) {}
+			return;
 		}
 	}
 }

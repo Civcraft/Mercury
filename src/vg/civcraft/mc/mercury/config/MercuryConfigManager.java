@@ -1,11 +1,15 @@
 package vg.civcraft.mc.mercury.config;
 
 import java.io.File;
+import java.util.concurrent.ThreadFactory;
 
 import vg.civcraft.mc.mercury.MercuryAPI;
 
 public class MercuryConfigManager {
 	public static void initialize() {
+		if (config_ != null) {
+			return;
+		}
 		if (MercuryConfigManager.inBukkit()) {
 			config_ = new BukkitConfiguration();
 		} else if (MercuryConfigManager.inBungee()) {
@@ -16,16 +20,16 @@ public class MercuryConfigManager {
 				JsonConfiguration c = new JsonConfiguration();
 				c.save(file);
 				config_ = c;
-			}
-			else
+			} else {
 				config_ = JsonConfiguration.load(file);
+			}
 		}
 	}
 
 	public static String getHost(){
 		return config_.getHost();
 	}
-	
+
 	public static String getUserName(){
 		return config_.getUserName();
 	}
@@ -46,6 +50,12 @@ public class MercuryConfigManager {
 		return config_.getServiceHandler();
 	}
 
+	public static ThreadFactory getThreadFactory() {
+		return config_.getThreadFactory();
+	}
+
+	// These methods must be available without a call to initialization()
+	// START SECTION
 	public static ServerType getServerType() {
 		if (MercuryConfigManager.serverType_ != null) {
 			return MercuryConfigManager.serverType_;
@@ -75,6 +85,7 @@ public class MercuryConfigManager {
 	public static boolean isStandalone() {
 		return MercuryConfigManager.getServerType() == ServerType.Standalone;
 	}
+	// END SECTION
 
 	public enum ServerType {
 		Bukkit,

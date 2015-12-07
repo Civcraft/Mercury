@@ -1,16 +1,9 @@
 package vg.civcraft.mc.mercury;
 
+import java.util.logging.Logger;
+
 public class MercuryBungee {
-
-	public static void enableService(final MercuryAPI api) {
-		MercuryBungePlugin.plugin.getProxy().getScheduler().runAsync(MercuryBungePlugin.plugin, new Runnable(){
-
-			@Override
-			public void run() {
-				api.setServiceHandler(ServiceManager.getService());
-				api.registerPluginMessageChannel("mercury");
-			}
-			
-		});
+	public static Logger log() {
+		return MercuryBungePlugin.log();
 	}
 }

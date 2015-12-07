@@ -74,7 +74,7 @@ public class JedisHandler implements ServiceHandler{
 	}
 
 	@Override
-	public void addBroadcastOnlyChannels(String... pluginChannels) {
+	public void addGlobalChannels(String... pluginChannels) {
 		addChannels(pluginChannels);
 	}
 

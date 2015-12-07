@@ -7,25 +7,33 @@ import vg.civcraft.mc.mercury.rabbitmq.RabbitHandler;
 import vg.civcraft.mc.mercury.venus.VenusHandler;
 
 public class ServiceManager {
+	private static ServiceHandler handler_;
+
 	public final static ServiceHandler getService() {
 		return ServiceManager.getService(MercuryConfigManager.getServiceHandler());
 	}
 
 	public final static ServiceHandler getService(String name) {
-		ServiceHandler handler;
+		if (ServiceManager.handler_ != null) {
+			return ServiceManager.handler_;
+		}
 		if (name.equalsIgnoreCase("redis")) {
-			handler = new JedisHandler();
+			ServiceManager.handler_ = new JedisHandler();
 		} else if (name.equalsIgnoreCase("rabbit")) {
-			handler = new RabbitHandler();
+			if (MercuryConfigManager.inBungee()) {
+				ServiceManager.handler_ = new RabbitHandler(MercuryConfigManager.getThreadFactory());
+			} else {
+				ServiceManager.handler_ = new RabbitHandler();
+			}
 		} else if (name.equalsIgnoreCase("venus")) {
-			handler = new VenusHandler();
+			ServiceManager.handler_ = new VenusHandler();
 		} else {
 			return null;
 		}
 
-		if (handler.isEnabled() == false){
-			return null;
+		if (ServiceManager.handler_.isEnabled() == false){
+			ServiceManager.handler_ = null;
 		}
-		return handler;
+		return ServiceManager.handler_;
 	}
 }
