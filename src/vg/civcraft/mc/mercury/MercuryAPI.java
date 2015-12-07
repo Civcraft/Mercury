@@ -76,6 +76,7 @@ public class MercuryAPI {
 		synchronized (MercuryAPI.instance.playersByUUID_) {
 			for (PlayerDetails player: players) {
 				MercuryAPI.instance.playersByUUID_.put(player.getAccountId(), player);
+				MercuryAPI.instance.playersByName_.put(player.getPlayerName(), player);
 			}
 		}
 	}
@@ -86,6 +87,12 @@ public class MercuryAPI {
 	public static PlayerDetails getServerforAccount(UUID accountId) {
 		synchronized (MercuryAPI.instance.playersByUUID_) {
 			return MercuryAPI.instance.playersByUUID_.get(accountId);
+		}
+	}
+
+	public static PlayerDetails getServerforPlayer(String playerName) {
+		synchronized (MercuryAPI.instance.playersByUUID_) {
+			return MercuryAPI.instance.playersByName_.get(playerName);
 		}
 	}
 
@@ -121,6 +128,12 @@ public class MercuryAPI {
 	public static Set<UUID> getAllAccounts(){
 		synchronized (MercuryAPI.instance.playersByUUID_) {
 			return MercuryAPI.instance.playersByUUID_.keySet();
+		}
+	}
+
+	public static Set<String> getAllPlayers(){
+		synchronized (MercuryAPI.instance.playersByName_) {
+			return MercuryAPI.instance.playersByName_.keySet();
 		}
 	}
 
@@ -186,8 +199,8 @@ public class MercuryAPI {
 		serverName_ = MercuryConfigManager.getServerName();
 		service_ = ServiceManager.getService();
 		playersByUUID_ = new HashMap<>();
+		playersByName_ = new HashMap<>();
 		connectedServers_ = new TreeSet<>();
-		MercuryAPI.info("Initialized %d", service_ == null ? 0 : 1); //XXX
 	}
 
 	protected void setServiceHandler(ServiceHandler service) {
@@ -215,5 +228,6 @@ public class MercuryAPI {
 	private String serverName_;
 	private Logger log_;
 	private HashMap<UUID, PlayerDetails> playersByUUID_;
+	private HashMap<String, PlayerDetails> playersByName_;
 	private Set<String> connectedServers_;
 }

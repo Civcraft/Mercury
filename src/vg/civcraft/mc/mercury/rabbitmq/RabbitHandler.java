@@ -171,7 +171,6 @@ public class RabbitHandler implements ServiceHandler {
 		factory_.setPassword(MercuryConfigManager.getPassword());
 		factory_.setPort(MercuryConfigManager.getPort());
 		if (threadFactory_ != null) {
-			MercuryAPI.info("custom ThreadFactory set: " + threadFactory_.toString()); //XXX
 			factory_.setThreadFactory(threadFactory_);
 		}
 	}
