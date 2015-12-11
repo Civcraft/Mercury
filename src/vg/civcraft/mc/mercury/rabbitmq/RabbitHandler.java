@@ -25,6 +25,8 @@ public class RabbitHandler implements ServiceHandler {
 	private Channel chan_;
 	private String queueName_;
 	private Set<String> exchanges_ = new HashSet<>();
+	private Set<String> boundGlobalExchanges_ = new HashSet<>();
+	private Set<String> boundShardExchanges_ = new HashSet<>();
 	private Map<String, RabbitConsumer> consumers_ = new HashMap<>();
 	private String serverName_;
 	private ThreadFactory threadFactory_ = null;
@@ -38,6 +40,7 @@ public class RabbitHandler implements ServiceHandler {
 		serverName_ = MercuryAPI.serverName();
 		createFactory();
 		enableRabbit();
+		addGlobalChannels("mercury");
 		addServerToServerList();
 	}
 
@@ -107,7 +110,7 @@ public class RabbitHandler implements ServiceHandler {
 		}
 	}
 
-	private void registerExchangesFor(boolean broadcastOnly, String pluginChannelName) throws IOException {
+	private void registerExchangesFor(boolean isGlobalExchange, String pluginChannelName) throws IOException {
 		// Global message exchange
 		String exchangeName = "mc." + pluginChannelName;
 		String globalExchangeName = exchangeName + ".global";
@@ -120,8 +123,9 @@ public class RabbitHandler implements ServiceHandler {
 				null);               // arguments
 		exchanges_.add(globalExchangeName);
 
-		if (!broadcastOnly) {
+		if (!isGlobalExchange) {
 			chan_.queueBind(queueName_, globalExchangeName, "");
+			boundGlobalExchanges_.add(globalExchangeName);
 
 			// Direct message exchange
 			chan_.exchangeDeclare(
@@ -133,6 +137,7 @@ public class RabbitHandler implements ServiceHandler {
 					null);         // arguments
 			chan_.queueBind(queueName_, exchangeName, serverName_);
 			exchanges_.add(exchangeName);
+			boundShardExchanges_.add(exchangeName);
 		}
 	}
 
@@ -198,6 +203,22 @@ public class RabbitHandler implements ServiceHandler {
 			con_ = null;
 			chan_ = null;
 		}
-		addGlobalChannels("mercury");
+		// Re-bind exchanges
+		for (String exch : boundGlobalExchanges_) {
+			try {
+				registerExchangesFor(true, exch);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		for (String exch : boundShardExchanges_) {
+			try {
+				registerExchangesFor(false, exch);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 }
