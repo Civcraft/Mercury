@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import vg.civcraft.mc.mercury.MercuryAPI;
+import vg.civcraft.mc.mercury.config.MercuryConfigManager;
 import vg.civcraft.mc.mercury.events.EventManager;
 
 import com.rabbitmq.client.Channel;
@@ -33,6 +35,7 @@ public class RabbitConsumer extends DefaultConsumer {
 				originServer = originServerObj.toString();
 				if (originServer.equals(handler_.serverName())) {
 					// Don't deliver a message to oneself
+					MercuryAPI.info("Received message from self %s, dropping message", originServer);
 					return;
 				}
 			}
@@ -41,6 +44,7 @@ public class RabbitConsumer extends DefaultConsumer {
 				channelName = channelMap_.get(channelName);
 			} else {
 				if (!channelName.startsWith("mc.")) {
+					MercuryAPI.info("Bad chan name %s on %s, dropping message", originServer, channelName);
 					return;
 				}
 				final boolean global = channelName.endsWith(".global");
@@ -58,7 +62,11 @@ public class RabbitConsumer extends DefaultConsumer {
 				message = new String(body, "UTF-8");
 			} catch (java.io.UnsupportedEncodingException e) {
 				e.printStackTrace();
+				MercuryAPI.info("Exception while UTF-8 decoding message from %s on %s, dropping message", originServer, channelName);
 				return;
+			}
+			if (MercuryConfigManager.getDebug()) {
+				MercuryAPI.info("Received from %s on %s: %s", originServer, channelName, message);
 			}
 			EventManager.fireMessage(originServer, channelName, message);
 	}

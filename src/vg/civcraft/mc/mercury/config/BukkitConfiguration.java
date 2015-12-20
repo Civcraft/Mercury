@@ -44,6 +44,11 @@ public class BukkitConfiguration implements Configuration {
 	}
 
 	@Override
+	public Boolean getDebug(){
+		return config().getBoolean("debug", false);
+	}
+
+	@Override
 	public ThreadFactory getThreadFactory() {
 		return null;
 	}

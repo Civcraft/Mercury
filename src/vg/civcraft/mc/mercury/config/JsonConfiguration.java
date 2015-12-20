@@ -41,9 +41,15 @@ public class JsonConfiguration implements Configuration {
 	}
 
 	@Override
+	public Boolean getDebug(){
+		return "true".equalsIgnoreCase(debug) || "1".equals(debug)
+			|| "yes".equalsIgnoreCase(debug) || "enable".equalsIgnoreCase(debug);
+	}
+
+	@Override
 	public ThreadFactory getThreadFactory() {
-    return null;
-  }
+		return null;
+	}
 
 	public static JsonConfiguration load(File file) {
 		Gson gson = new Gson();
@@ -73,4 +79,5 @@ public class JsonConfiguration implements Configuration {
 	private Integer port = 5672;
 	private String username = "bukkit";
 	private String password = "";
+	private String debug = "";
 }

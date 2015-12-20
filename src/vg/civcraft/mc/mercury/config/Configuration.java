@@ -9,5 +9,6 @@ public interface Configuration {
 	String getServerName();
 	String getServiceHandler();
 	String getUserName();
+	Boolean getDebug();
 	ThreadFactory getThreadFactory();
 }

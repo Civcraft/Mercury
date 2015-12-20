@@ -42,6 +42,7 @@ public class RabbitHandler implements ServiceHandler {
 		enableRabbit();
 		addGlobalChannels("mercury");
 		addServerToServerList();
+		MercuryAPI.info("RabbitMQ handler loaded");
 	}
 
 	public String serverName() {

@@ -8,6 +8,8 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import com.google.common.base.Joiner;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import vg.civcraft.mc.mercury.config.MercuryConfigManager;
@@ -24,10 +26,12 @@ public class MercuryAPI {
 		}
 		MercuryAPI.instance = new MercuryAPI();
 		MercuryAPI.instance.internalInitialize();
+		MercuryAPI.info("Mercury initialized");
 	}
 
 	public static void shutdown() {
 		MercuryAPI.instance.service_.destory();
+		MercuryAPI.info("Mercury shutdown");
 	}
 
 	public static void info(String msg) {
@@ -143,7 +147,21 @@ public class MercuryAPI {
 		}
 	}
 
+	private static final Joiner joinPipe = Joiner.on("|");
+
+	public static void traceSendMessage(String dest, String message, String... channels) {
+		if (!MercuryConfigManager.getDebug()) {
+			return;
+		}
+		if (dest != null) {
+			MercuryAPI.info("Sending to %s on %s: %s", dest, joinPipe.join(channels), message);
+		} else {
+			MercuryAPI.info("Sending on %s: %s", joinPipe.join(channels), message);
+		}
+	}
+
 	public static void sendMessage(String dest, String message, String... channels){
+		traceSendMessage(dest, message, channels);
 		MercuryAPI.instance.service_.sendMessage(dest, message, channels);
 	}
 
@@ -156,6 +174,7 @@ public class MercuryAPI {
 	}
 
 	public static void sendGlobalMessage(String message, String... channels){
+		traceSendMessage(null, message, channels);
 		MercuryAPI.instance.service_.sendGlobalMessage(message, channels);
 	}
 
@@ -196,6 +215,7 @@ public class MercuryAPI {
 			log_ = Logger.getLogger("MercuryAPI");
 		}
 		MercuryConfigManager.initialize();
+
 		serverName_ = MercuryConfigManager.getServerName();
 		service_ = ServiceManager.getService();
 		playersByUUID_ = new HashMap<>();

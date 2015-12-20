@@ -26,6 +26,10 @@ public class MercuryConfigManager {
 		}
 	}
 
+	public static Boolean getDebug(){
+		return config_.getDebug();
+	}
+
 	public static String getHost(){
 		return config_.getHost();
 	}

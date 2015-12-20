@@ -73,6 +73,11 @@ public class BungeeConfiguration implements vg.civcraft.mc.mercury.config.Config
 	}
 
 	@Override
+	public Boolean getDebug(){
+		return config().getBoolean("debug", false);
+	}
+
+	@Override
 	public String getServiceHandler(){
 		return config().getString("service", "rabbit");
 	}
