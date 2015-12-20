@@ -10,7 +10,7 @@ public class JedisListener extends JedisPubSub{
 
 	@Override
 	public void onMessage(String channel, String message){
-		EventManager.fireMessage(channel, message);
+		EventManager.fireMessage(null, channel, message);
 	}
 
 	@Override

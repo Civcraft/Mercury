@@ -39,7 +39,7 @@ public class VenusService extends Thread{
 		if (message.isEmpty()){return;}
 		final String[] splitmsg = message.split(",", 3);
 		if (splitmsg[0].equals("msg")){
-			EventManager.fireMessage(splitmsg[1], splitmsg[2]);
+			EventManager.fireMessage(null, splitmsg[1], splitmsg[2]);
 		}
 	}
 

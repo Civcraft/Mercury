@@ -10,10 +10,12 @@ import org.bukkit.event.HandlerList;
 public class AsyncPluginBroadcastMessageEvent extends Event{
 
 	private static final HandlerList handle = new HandlerList();
+  private String originServer;
 	private String channel;
 	private String message;
 	
-	public AsyncPluginBroadcastMessageEvent(String channel, String message){
+	public AsyncPluginBroadcastMessageEvent(String originServer, String channel, String message){
+		this.originServer = originServer;
 		this.channel = channel;
 		this.message = message;
 	}
@@ -25,6 +27,10 @@ public class AsyncPluginBroadcastMessageEvent extends Event{
 	
 	public static HandlerList getHandlerList() {
 		return handle;
+	}
+
+	public String getOriginServer() {
+		return originServer;
 	}
 	
 	public String getChannel(){

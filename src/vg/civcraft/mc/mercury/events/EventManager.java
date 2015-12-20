@@ -11,8 +11,8 @@ public class EventManager {
 		}
 	}
 
-	public static void fireMessage(String channel, String message) {
-		eventMgr_.fireMessage(channel, message);
+	public static void fireMessage(String originServer, String channel, String message) {
+		eventMgr_.fireMessage(originServer, channel, message);
 	}
 
 	public static void registerListener(EventListener listener) {

@@ -12,7 +12,7 @@ import vg.civcraft.mc.mercury.events.EventListener;
 public class MercuryBungeeListener implements EventListener {
 
 	@Override
-	public void receiveMessage(String channel, String msg) {
+	public void receiveMessage(String originServer, String channel, String msg) {
 		if (!channel.equalsIgnoreCase("mercury")) {
 			return;
 		}

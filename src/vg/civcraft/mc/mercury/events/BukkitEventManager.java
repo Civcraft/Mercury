@@ -9,8 +9,8 @@ public class BukkitEventManager implements EventManagerBase {
 	public BukkitEventManager() {}
 
 	@Override
-	public void fireMessage(String channel, String message) {
-		AsyncPluginBroadcastMessageEvent event = new AsyncPluginBroadcastMessageEvent(channel, message);
+	public void fireMessage(String originServer, String channel, String message) {
+		AsyncPluginBroadcastMessageEvent event = new AsyncPluginBroadcastMessageEvent(originServer, channel, message);
 		Bukkit.getPluginManager().callEvent(event);
 	}
 

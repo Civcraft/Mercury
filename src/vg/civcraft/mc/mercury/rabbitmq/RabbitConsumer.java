@@ -27,9 +27,10 @@ public class RabbitConsumer extends DefaultConsumer {
 
 	@Override
 	public void handleDelivery(java.lang.String consumerTag, Envelope envelope, BasicProperties properties, byte[] body) {
+			String originServer = null;
 			final Object originServerObj = properties.getHeaders().get("ORIGIN_SERVER");
 			if (originServerObj != null) {
-				final String originServer = originServerObj.toString();
+				originServer = originServerObj.toString();
 				if (originServer.equals(handler_.serverName())) {
 					// Don't deliver a message to oneself
 					return;
@@ -59,6 +60,6 @@ public class RabbitConsumer extends DefaultConsumer {
 				e.printStackTrace();
 				return;
 			}
-			EventManager.fireMessage(channelName, message);
+			EventManager.fireMessage(originServer, channelName, message);
 	}
 }

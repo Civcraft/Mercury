@@ -7,14 +7,14 @@ public class IndependentEventManager implements EventManagerBase {
 	public IndependentEventManager() {}
 
 	@Override
-	public void fireMessage(String channel, String message) {
+	public void fireMessage(String originServer, String channel, String message) {
 		for (EventListener el : listeners_) {
-			el.receiveMessage(channel, message);
+			el.receiveMessage(originServer, channel, message);
 		}
 		LinkedList<EventListener> listeners = directListeners_.get(channel);
 		if (listeners != null) {
 			for (EventListener el : listeners) {
-				el.receiveMessage(channel, message);
+				el.receiveMessage(originServer, channel, message);
 			}
 		}
 	}
