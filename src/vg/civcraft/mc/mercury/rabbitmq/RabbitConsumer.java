@@ -35,7 +35,9 @@ public class RabbitConsumer extends DefaultConsumer {
 				originServer = originServerObj.toString();
 				if (originServer.equals(handler_.serverName())) {
 					// Don't deliver a message to oneself
-					MercuryAPI.info("Received message from self %s, dropping message", originServer);
+					if (MercuryConfigManager.getDebug()) {
+						MercuryAPI.info("Received message from self %s, dropping message", originServer);
+					}
 					return;
 				}
 			}

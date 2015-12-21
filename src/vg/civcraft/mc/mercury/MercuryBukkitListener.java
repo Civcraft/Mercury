@@ -16,6 +16,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import vg.civcraft.mc.mercury.config.MercuryConfigManager;
 import vg.civcraft.mc.mercury.events.AsyncPluginBroadcastMessageEvent;
 
 public class MercuryBukkitListener implements Listener {
@@ -69,10 +70,14 @@ public class MercuryBukkitListener implements Listener {
 				listJson);
 		if (remoteServer == null) {
 			MercuryAPI.sendGlobalMessage(syncMessage, "namelayer");
-			MercuryAPI.info("Broadcasted sync request");
+			if (MercuryConfigManager.getDebug()) {
+				MercuryAPI.info("Broadcasted sync request");
+			}
 		} else {
 			MercuryAPI.sendMessage(remoteServer, syncMessage, "namelayer");
-			MercuryAPI.info("Responded to server %s sync request", remoteServer);
+			if (MercuryConfigManager.getDebug()) {
+				MercuryAPI.info("Responded to server %s sync request", remoteServer);
+			}
 		}
 	}
 	
@@ -112,7 +117,9 @@ public class MercuryBukkitListener implements Listener {
 				return;
 			}
 			allsynced = allsynced.substring(0, allsynced.length()-2);
-			MercuryAPI.info("Synced players from %s: %s", remoteServer, allsynced);
+			if (MercuryConfigManager.getDebug()) {
+				MercuryAPI.info("Synced players from %s: %s", remoteServer, allsynced);
+			}
 			return;
 		}
 		if (reason.equals("ping")){
