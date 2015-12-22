@@ -112,6 +112,7 @@ public class MercuryAPI {
 	public static void addPlayer(PlayerDetails details) {
 		synchronized (MercuryAPI.instance.playersByUUID_) {
 			MercuryAPI.instance.playersByUUID_.put(details.getAccountId(), details);
+			MercuryAPI.instance.playersByName_.put(details.getPlayerName(), details);
 		}
 	}
 
