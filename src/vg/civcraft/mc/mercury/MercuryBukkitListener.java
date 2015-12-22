@@ -87,7 +87,7 @@ public class MercuryBukkitListener implements Listener {
 			return;
 		}
 		final String msg = event.getMessage();
-		String[] message = msg.split("|", 3);
+		String[] message = msg.split("\\|", 3);
 		if (message.length < 2) {
 			// Malformed
 			MercuryAPI.warn("Malformed message: %s", msg);
@@ -130,7 +130,7 @@ public class MercuryBukkitListener implements Listener {
 		}
 
 		if (remainder != null) {
-			message = remainder.split("|");
+			message = remainder.split("\\|");
 		} else {
 			message = null;
 		}

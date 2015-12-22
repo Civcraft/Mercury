@@ -16,7 +16,7 @@ public class MercuryBungeeListener implements EventListener {
 		if (!channel.equalsIgnoreCase("mercury")) {
 			return;
 		}
-		String[] message = msg.split("|", 3);
+		String[] message = msg.split("\\|", 3);
 		if (message.length < 2) {
 			// Malformed
 			MercuryAPI.warn("Malformed message: %s", msg);
@@ -46,7 +46,7 @@ public class MercuryBungeeListener implements EventListener {
 		}
 
 		if (remainder != null) {
-			message = remainder.split("|");
+			message = remainder.split("\\|");
 		} else {
 			message = null;
 		}
