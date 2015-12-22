@@ -35,7 +35,7 @@ public class MercuryBukkitListener implements Listener {
 			public void run() {
 				sendSyncResponse(MercuryAPI.serverName(), null);
 			}
-		}, 10, 1200);
+		}, 9, 1200);
 
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(MercuryPlugin.instance, new Runnable() {
 			@Override
@@ -47,7 +47,7 @@ public class MercuryBukkitListener implements Listener {
 				}
 				pinged.clear();
 			}
-		}, 100, 200);
+		}, 10, 1200);
 	}
 
 	public void sendSyncResponse(String thisServer, String remoteServer) {
@@ -69,12 +69,12 @@ public class MercuryBukkitListener implements Listener {
 				thisServer,
 				listJson);
 		if (remoteServer == null) {
-			MercuryAPI.sendGlobalMessage(syncMessage, "namelayer");
+			MercuryAPI.sendGlobalMessage(syncMessage, "mercury");
 			if (MercuryConfigManager.getDebug()) {
 				MercuryAPI.info("Broadcasted sync request");
 			}
 		} else {
-			MercuryAPI.sendMessage(remoteServer, syncMessage, "namelayer");
+			MercuryAPI.sendMessage(remoteServer, syncMessage, "mercury");
 			if (MercuryConfigManager.getDebug()) {
 				MercuryAPI.info("Responded to server %s sync request", remoteServer);
 			}
