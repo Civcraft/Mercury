@@ -19,6 +19,7 @@ import vg.civcraft.mc.mercury.ServiceHandler;
 import vg.civcraft.mc.mercury.config.MercuryConfigManager;
 
 public class RabbitHandler implements ServiceHandler {
+	public static final String EXCHANGE_DEBUG = "mc.debug";
 
 	private ConnectionFactory factory_;
 	private Connection con_;
@@ -112,6 +113,7 @@ public class RabbitHandler implements ServiceHandler {
 	}
 
 	private void registerExchangesFor(boolean isGlobalExchange, String pluginChannelName) throws IOException {
+
 		// Global message exchange
 		String exchangeName = "mc." + pluginChannelName;
 		String globalExchangeName = exchangeName + ".global";
@@ -123,6 +125,11 @@ public class RabbitHandler implements ServiceHandler {
 				false,               // internal
 				null);               // arguments
 		exchanges_.add(globalExchangeName);
+
+		chan_.exchangeBind(
+				EXCHANGE_DEBUG,      // Dest
+				globalExchangeName,  // Src
+				"");                 // routingKey
 
 		if (!isGlobalExchange) {
 			chan_.queueBind(queueName_, globalExchangeName, "");
@@ -139,6 +146,11 @@ public class RabbitHandler implements ServiceHandler {
 			chan_.queueBind(queueName_, exchangeName, serverName_);
 			exchanges_.add(exchangeName);
 			boundShardExchanges_.add(exchangeName);
+
+			chan_.exchangeBind(
+					EXCHANGE_DEBUG,      // Dest
+					exchangeName,        // Src
+					"");                 // routingKey
 		}
 	}
 
@@ -199,6 +211,15 @@ public class RabbitHandler implements ServiceHandler {
 			RabbitConsumer consumer = new RabbitConsumer(this, chan_, queueName_);
 			chan_.basicConsume(queueName_, true, consumer);
 			consumers_.put(queueName_, consumer);
+
+			chan_.exchangeDeclare(
+					EXCHANGE_DEBUG,      // Exchange name
+					"fanout",            // type
+					false,               // durable
+					true,                // auto-delete
+					false,               // internal
+					null);               // arguments
+			exchanges_.add(EXCHANGE_DEBUG);
 		} catch (IOException | TimeoutException e) {
 			e.printStackTrace();
 			con_ = null;
