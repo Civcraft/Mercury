@@ -35,7 +35,7 @@ public class MercuryBukkitListener implements Listener {
 			public void run() {
 				sendSyncResponse(MercuryAPI.serverName(), null);
 			}
-		}, 9, 1200);
+		}, 10, 300);
 
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(MercuryPlugin.instance, new Runnable() {
 			@Override
