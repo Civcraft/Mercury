@@ -1,11 +1,7 @@
 package vg.civcraft.mc.mercury;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import vg.civcraft.mc.mercury.events.EventListener;
 
@@ -61,7 +57,7 @@ public class MercuryBungeeListener implements EventListener {
 			final String playerName = message[1];
 			try {
 				UUID accountId = UUID.fromString(playerUUID);
-			  MercuryAPI.instance.addPlayer(accountId, playerName, remoteServer);
+			  MercuryAPI.addPlayer(accountId, playerName, remoteServer);
 			  MercuryAPI.info("Player %s has logged in on server: %s", playerName, remoteServer);
 			} catch(Exception ex) {}
 			return;
@@ -76,7 +72,7 @@ public class MercuryBungeeListener implements EventListener {
 			final String playerName = message[1];
 			try {
 				UUID accountId = UUID.fromString(playerUUID);
-				MercuryAPI.removeAccount(accountId);
+				MercuryAPI.removeAccount(accountId, playerName);
 			  MercuryAPI.info("Player %s has logged off on server: %s", playerName, remoteServer);
 			} catch(Exception ex) {}
 			return;

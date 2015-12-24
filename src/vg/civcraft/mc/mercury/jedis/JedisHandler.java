@@ -1,15 +1,11 @@
 package vg.civcraft.mc.mercury.jedis;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import java.util.logging.Level;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
-import vg.civcraft.mc.mercury.MercuryAPI;
 import vg.civcraft.mc.mercury.MercuryPlugin;
 import vg.civcraft.mc.mercury.ServiceHandler;
 import vg.civcraft.mc.mercury.config.MercuryConfigManager;

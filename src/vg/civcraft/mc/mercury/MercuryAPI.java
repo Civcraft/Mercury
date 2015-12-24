@@ -1,7 +1,6 @@
 package vg.civcraft.mc.mercury;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -10,8 +9,6 @@ import java.util.logging.Logger;
 
 import com.google.common.base.Joiner;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 import vg.civcraft.mc.mercury.config.MercuryConfigManager;
 import vg.civcraft.mc.mercury.events.EventListener;
 import vg.civcraft.mc.mercury.events.EventManager;
@@ -120,9 +117,10 @@ public class MercuryAPI {
 	 * Removes a player from the list.
 	 * @param player
 	 */
-	public static void removeAccount(UUID accountId){
+	public static void removeAccount(UUID accountId, String accountName){
 		synchronized (MercuryAPI.instance.playersByUUID_) {
 			MercuryAPI.instance.playersByUUID_.remove(accountId);
+			MercuryAPI.instance.playersByName_.remove(accountName);
 		}
 	}
 

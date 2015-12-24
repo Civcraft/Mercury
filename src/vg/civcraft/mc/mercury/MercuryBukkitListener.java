@@ -160,7 +160,7 @@ public class MercuryBukkitListener implements Listener {
 			final String playerName = message[1];
 			try {
 				UUID accountId = UUID.fromString(playerUUID);
-				MercuryAPI.removeAccount(accountId);
+				MercuryAPI.removeAccount(accountId, playerName);
 				MercuryAPI.info("Player %s (%s) has logged off on server %s", playerName, playerUUID, remoteServer);
 			} catch (Exception ex) {}
 			return;
