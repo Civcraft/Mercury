@@ -1,6 +1,7 @@
 package vg.civcraft.mc.mercury;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -199,7 +200,7 @@ public class MercuryAPI {
 	 */
 	public static Set<String> getAllConnectedServers() {
 		synchronized (MercuryAPI.instance.connectedServers_) {
-			return MercuryAPI.instance.connectedServers_;
+			return new HashSet<String>(MercuryAPI.instance.connectedServers_);
 		}
 	}
 
@@ -227,19 +228,25 @@ public class MercuryAPI {
 	}
 
 	protected void addConnectedServer(String server) {
-		MercuryAPI.info("Server connected: %s", server);
+		boolean result = false;
 		synchronized (MercuryAPI.instance.connectedServers_) {
 			if (MercuryAPI.serverName().equalsIgnoreCase(server)) {
 				MercuryAPI.err("DUPLICATE SERVER NAME REGISTERED: %s", server);
 			}
-			connectedServers_.add(server);
+			result = connectedServers_.add(server);
+		}
+		if (result) {
+			MercuryAPI.info("Server connected: %s", server);
 		}
 	}
 
 	protected void removeConnectedServer(String server) {
-		MercuryAPI.info("Server disconnected: %s", server);
+		boolean result = false;
 		synchronized (MercuryAPI.instance.connectedServers_) {
-			connectedServers_.remove(server);
+			result = connectedServers_.remove(server);
+		}
+		if (result) {
+			MercuryAPI.info("Server disconnected: %s", server);
 		}
 	}
 
