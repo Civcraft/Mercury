@@ -46,6 +46,9 @@ public class MercuryBukkitListener implements Listener {
 					}
 				}
 				pinged.clear();
+				for(Player p:MercuryPlugin.instance.getServer().getOnlinePlayers()) {
+					MercuryAPI.addPlayer(p.getUniqueId(), p.getName(), MercuryAPI.serverName());
+				}
 			}
 		}, 10, 1200);
 	}
@@ -169,6 +172,7 @@ public class MercuryBukkitListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onLogin(PlayerJoinEvent event){
+		MercuryAPI.addPlayer(event.getPlayer().getUniqueId(), event.getPlayer().getName(), MercuryAPI.serverName());
 		MercuryAPI.sendGlobalMessage(
 				String.format(
 						"login|%s|%s|%s",
@@ -180,6 +184,7 @@ public class MercuryBukkitListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onLogoff(PlayerQuitEvent event){
+		MercuryAPI.removeAccount(event.getPlayer().getUniqueId(), event.getPlayer().getName());
 		MercuryAPI.sendGlobalMessage(
 				String.format(
 						"logoff|%s|%s|%s",
