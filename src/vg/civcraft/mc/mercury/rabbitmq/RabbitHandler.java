@@ -26,8 +26,8 @@ public class RabbitHandler implements ServiceHandler {
 	private Channel chan_;
 	private String queueName_;
 	private Set<String> exchanges_ = new HashSet<>();
-	private Set<String> boundGlobalExchanges_ = new HashSet<>();
-	private Set<String> boundShardExchanges_ = new HashSet<>();
+	private Set<String> boundGlobalChannels_ = new HashSet<>();
+	private Set<String> boundShardChannels_ = new HashSet<>();
 	private Map<String, RabbitConsumer> consumers_ = new HashMap<>();
 	private String serverName_;
 	private ThreadFactory threadFactory_ = null;
@@ -113,7 +113,6 @@ public class RabbitHandler implements ServiceHandler {
 	}
 
 	private void registerExchangesFor(boolean isGlobalExchange, String pluginChannelName) throws IOException {
-
 		// Global message exchange
 		String exchangeName = "mc." + pluginChannelName;
 		String globalExchangeName = exchangeName + ".global";
@@ -126,6 +125,7 @@ public class RabbitHandler implements ServiceHandler {
 				null);               // arguments
 		exchanges_.add(globalExchangeName);
 
+		// Bind to debug exchange
 		chan_.exchangeBind(
 				EXCHANGE_DEBUG,      // Dest
 				globalExchangeName,  // Src
@@ -133,7 +133,6 @@ public class RabbitHandler implements ServiceHandler {
 
 		if (!isGlobalExchange) {
 			chan_.queueBind(queueName_, globalExchangeName, "");
-			boundGlobalExchanges_.add(globalExchangeName);
 
 			// Direct message exchange
 			chan_.exchangeDeclare(
@@ -145,12 +144,16 @@ public class RabbitHandler implements ServiceHandler {
 					null);         // arguments
 			chan_.queueBind(queueName_, exchangeName, serverName_);
 			exchanges_.add(exchangeName);
-			boundShardExchanges_.add(exchangeName);
 
+			// Bind to debug exchange
 			chan_.exchangeBind(
 					EXCHANGE_DEBUG,      // Dest
 					exchangeName,        // Src
 					"");                 // routingKey
+
+			boundShardChannels_.add(pluginChannelName);
+		} else {
+			boundGlobalChannels_.add(pluginChannelName);
 		}
 	}
 
@@ -225,18 +228,18 @@ public class RabbitHandler implements ServiceHandler {
 			con_ = null;
 			chan_ = null;
 		}
-		// Re-bind exchanges
-		for (String exch : boundGlobalExchanges_) {
+		// Re-bind plugin channels
+		for (String chan : boundGlobalChannels_) {
 			try {
-				registerExchangesFor(true, exch);
+				registerExchangesFor(true, chan);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		for (String exch : boundShardExchanges_) {
+		for (String chan : boundShardChannels_) {
 			try {
-				registerExchangesFor(false, exch);
+				registerExchangesFor(false, chan);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
