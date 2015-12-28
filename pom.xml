@@ -6,7 +6,7 @@
 	<groupId>vg.civcraft.mc.mercury</groupId>
 	<artifactId>Mercury</artifactId>
 	<packaging>jar</packaging>
-	<version>1.1.107</version>
+	<version>1.1.108</version>
 	<name>Mercury</name>
 	<url>https://github.com/Civcraft/Mercury</url>
 
@@ -91,11 +91,6 @@
 			<version>3.5.6</version>
 		</dependency>
 		<dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-			<version>20140107</version>
-		</dependency>
-		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>2.3.1</version>
@@ -108,9 +103,14 @@
 			<type>jar</type>
 		</dependency>
 		<dependency>
-  			<groupId>org.apache.logging.log4j</groupId>
-			 <artifactId>log4j-api</artifactId>
-  			<version>2.3</version>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>2.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>19.0</version>
 		</dependency>
 	</dependencies>
 	<pluginRepositories>
