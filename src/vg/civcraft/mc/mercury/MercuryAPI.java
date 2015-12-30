@@ -16,6 +16,8 @@ import vg.civcraft.mc.mercury.events.EventListener;
 import vg.civcraft.mc.mercury.events.EventManager;
 
 public class MercuryAPI {
+	public static final Joiner joinPipe = Joiner.on("|");
+	public static final Joiner joinComma = Joiner.on(", ");
 
 	public static MercuryAPI instance;
 
@@ -107,15 +109,26 @@ public class MercuryAPI {
 	 * @param player The player's name.
 	 * @param server The server that the player is on.
 	 */
-	public static void addPlayer(UUID accountId, String player, String server) {
-		addPlayer(new PlayerDetails(accountId, player, server));
+	public static boolean addPlayer(UUID accountId, String player, String server) {
+		return addPlayer(new PlayerDetails(accountId, player, server));
 	}
 
-	public static void addPlayer(PlayerDetails details) {
+	public static boolean addPlayer(PlayerDetails details) {
+		boolean result = true;
 		synchronized (MercuryAPI.instance.playerListLock_) {
+			PlayerDetails oldDetails = MercuryAPI.instance.playersByUUID_.get(details.getAccountId());
+			if (oldDetails != null) {
+				if (oldDetails.getServerName().equalsIgnoreCase(details.getServerName())) {
+					// The player is already on that server so technically there shouldn't be an update.
+					// In the case of a NameLayer player rename though, this player's name could have
+					// changed so continue to update the maps.
+					result = false;
+				}
+			}
 			MercuryAPI.instance.playersByUUID_.put(details.getAccountId(), details);
 			MercuryAPI.instance.playersByName_.put(details.getPlayerName(), details);
 		}
+		return result;
 	}
 
 	/**
@@ -150,8 +163,6 @@ public class MercuryAPI {
 			return MercuryAPI.instance.playersByUUID_.containsKey(accountId);
 		}
 	}
-
-	private static final Joiner joinPipe = Joiner.on("|");
 
 	public static void traceSendMessage(String dest, String message, String... channels) {
 		if (!MercuryConfigManager.getDebug()) {
