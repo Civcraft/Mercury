@@ -75,7 +75,7 @@ public class MercuryAPI {
 	 * @param players
 	 */
 	public static void setAllPlayers(List<PlayerDetails> players){
-		synchronized (MercuryAPI.instance.playersByUUID_) {
+		synchronized (MercuryAPI.instance.playerListLock_) {
 			for (PlayerDetails player: players) {
 				MercuryAPI.instance.playersByUUID_.put(player.getAccountId(), player);
 				MercuryAPI.instance.playersByName_.put(player.getPlayerName(), player);
@@ -87,13 +87,13 @@ public class MercuryAPI {
 	 * Returns the server that a player is on.
 	 */
 	public static PlayerDetails getServerforAccount(UUID accountId) {
-		synchronized (MercuryAPI.instance.playersByUUID_) {
+		synchronized (MercuryAPI.instance.playerListLock_) {
 			return MercuryAPI.instance.playersByUUID_.get(accountId);
 		}
 	}
 
 	public static PlayerDetails getServerforPlayer(String playerName) {
-		synchronized (MercuryAPI.instance.playersByUUID_) {
+		synchronized (MercuryAPI.instance.playerListLock_) {
 			return MercuryAPI.instance.playersByName_.get(playerName);
 		}
 	}
@@ -108,7 +108,7 @@ public class MercuryAPI {
 	}
 
 	public static void addPlayer(PlayerDetails details) {
-		synchronized (MercuryAPI.instance.playersByUUID_) {
+		synchronized (MercuryAPI.instance.playerListLock_) {
 			MercuryAPI.instance.playersByUUID_.put(details.getAccountId(), details);
 			MercuryAPI.instance.playersByName_.put(details.getPlayerName(), details);
 		}
@@ -119,7 +119,7 @@ public class MercuryAPI {
 	 * @param player
 	 */
 	public static void removeAccount(UUID accountId, String accountName){
-		synchronized (MercuryAPI.instance.playersByUUID_) {
+		synchronized (MercuryAPI.instance.playerListLock_) {
 			MercuryAPI.instance.playersByUUID_.remove(accountId);
 			MercuryAPI.instance.playersByName_.remove(accountName);
 		}
@@ -130,19 +130,19 @@ public class MercuryAPI {
 	 * @return
 	 */
 	public static Set<UUID> getAllAccounts(){
-		synchronized (MercuryAPI.instance.playersByUUID_) {
+		synchronized (MercuryAPI.instance.playerListLock_) {
 			return MercuryAPI.instance.playersByUUID_.keySet();
 		}
 	}
 
 	public static Set<String> getAllPlayers(){
-		synchronized (MercuryAPI.instance.playersByName_) {
+		synchronized (MercuryAPI.instance.playerListLock_) {
 			return MercuryAPI.instance.playersByName_.keySet();
 		}
 	}
 
 	public static boolean isKnownAccount(UUID accountId) {
-		synchronized (MercuryAPI.instance.playersByUUID_) {
+		synchronized (MercuryAPI.instance.playerListLock_) {
 			return MercuryAPI.instance.playersByUUID_.containsKey(accountId);
 		}
 	}
@@ -253,6 +253,7 @@ public class MercuryAPI {
 	private ServiceHandler service_;
 	private String serverName_;
 	private Logger log_;
+	private Object playerListLock_ = new Object();
 	private HashMap<UUID, PlayerDetails> playersByUUID_;
 	private HashMap<String, PlayerDetails> playersByName_;
 	private Set<String> connectedServers_;
