@@ -14,6 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import vg.civcraft.mc.mercury.config.MercuryConfigManager;
@@ -179,6 +180,18 @@ public class MercuryBukkitListener implements Listener {
 						MercuryAPI.serverName(),
 						event.getPlayer().getUniqueId().toString(),
 						event.getPlayer().getDisplayName()),
+				"mercury");
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onKick(PlayerKickEvent event){
+		MercuryAPI.removeAccount(event.getPlayer().getUniqueId(), event.getPlayer().getName());
+		MercuryAPI.sendGlobalMessage(
+				String.format(
+						"logoff|%s|%s|%s",
+						MercuryAPI.serverName(),
+						event.getPlayer().getUniqueId().toString(),
+						event.getPlayer().getName()),
 				"mercury");
 	}
 
