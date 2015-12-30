@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.UUID;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
@@ -48,9 +49,9 @@ public class PlayerDetails {
 	}
 
 	public void reset(UUID aid, String pn, String sn) {
-		this.accountId = aid;
-		this.playerName = pn;
-		this.serverName = sn;
+		this.accountId = Preconditions.checkNotNull(aid);
+		this.playerName = Preconditions.checkNotNull(pn);
+		this.serverName = Preconditions.checkNotNull(sn);
 	}
 
 	public UUID getAccountId() {

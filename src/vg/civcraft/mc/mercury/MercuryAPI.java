@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -92,6 +93,9 @@ public class MercuryAPI {
 		}
 	}
 
+	/**
+	 * Case-insensitive retrieval of player details
+	 */
 	public static PlayerDetails getServerforPlayer(String playerName) {
 		synchronized (MercuryAPI.instance.playerListLock_) {
 			return MercuryAPI.instance.playersByName_.get(playerName);
@@ -219,7 +223,7 @@ public class MercuryAPI {
 		serverName_ = MercuryConfigManager.getServerName();
 		service_ = ServiceManager.getService();
 		playersByUUID_ = new HashMap<>();
-		playersByName_ = new HashMap<>();
+		playersByName_ = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		connectedServers_ = new TreeSet<>();
 	}
 
@@ -255,6 +259,6 @@ public class MercuryAPI {
 	private Logger log_;
 	private Object playerListLock_ = new Object();
 	private HashMap<UUID, PlayerDetails> playersByUUID_;
-	private HashMap<String, PlayerDetails> playersByName_;
+	private TreeMap<String, PlayerDetails> playersByName_;
 	private Set<String> connectedServers_;
 }
