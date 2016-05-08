@@ -38,7 +38,7 @@ public class MercuryBukkitListener implements Listener {
 			public void run() {
 				sendSyncResponse(MercuryAPI.serverName(), null);
 			}
-		}, 10, 100);
+		}, 10, 60);
 
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(MercuryPlugin.instance, new Runnable() {
 			@Override
@@ -101,6 +101,7 @@ public class MercuryBukkitListener implements Listener {
 		final String reason = message[0];
 		final String remoteServer = message[1];
 		final String remainder = message.length >= 3 ? message[2] : null;
+		pinged.remove(remoteServer);
 		if (reason.equals("whoonline")){
 			sendSyncResponse(thisServer, remoteServer);
 			return;
@@ -128,7 +129,6 @@ public class MercuryBukkitListener implements Listener {
 		if (reason.equals("ping")){
 			// Data format: ping|serverName
 			MercuryAPI.instance.addConnectedServer(remoteServer);
-			pinged.remove(remoteServer);
 			return;
 		}
 
