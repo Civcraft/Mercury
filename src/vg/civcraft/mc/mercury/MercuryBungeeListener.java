@@ -26,7 +26,6 @@ public class MercuryBungeeListener implements EventListener {
 					else
 						pinged.add(server); // Add them to be checked.
 				}
-				pinged.clear();
 			}
 			
 		}, 1, 5, TimeUnit.SECONDS);

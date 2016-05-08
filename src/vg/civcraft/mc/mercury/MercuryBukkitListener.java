@@ -50,10 +50,6 @@ public class MercuryBukkitListener implements Listener {
 					else
 						pinged.add(server); // Add them to be checked.
 				}
-				pinged.clear();
-				for(Player p:MercuryPlugin.instance.getServer().getOnlinePlayers()) {
-					MercuryAPI.addPlayer(p.getUniqueId(), p.getName(), MercuryAPI.serverName());
-				}
 			}
 		}, 10, 160);
 	}
