@@ -7,10 +7,31 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import net.md_5.bungee.api.ProxyServer;
 import vg.civcraft.mc.mercury.events.EventListener;
 
 public class MercuryBungeeListener implements EventListener {
 
+	private Set<String> pinged = Collections.synchronizedSet(new TreeSet<String>());
+	
+	public MercuryBungeeListener() {
+		ProxyServer.getInstance().getScheduler().schedule(MercuryBungePlugin.plugin, new Runnable() {
+
+			@Override
+			public void run() {
+				for (String server : MercuryAPI.getAllConnectedServers()) {
+					if (pinged.contains(server)) { // Then they havent removed it.
+						MercuryAPI.instance.removeConnectedServer(server); // So remove them.
+					}
+					else
+						pinged.add(server); // Add them to be checked.
+				}
+				pinged.clear();
+			}
+			
+		}, 1, 5, TimeUnit.SECONDS);
+	}
+	
 	@Override
 	public void receiveMessage(String originServer, String channel, String msg) {
 		if (!channel.equalsIgnoreCase("mercury")) {
@@ -29,6 +50,7 @@ public class MercuryBungeeListener implements EventListener {
 		if (reason.equals("ping")){
 			String server = message[1];
 			MercuryAPI.instance.addConnectedServer(server);
+			pinged.remove(remoteServer);
 			return;
 		}
 		if (reason.equals("sync")){

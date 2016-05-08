@@ -21,7 +21,8 @@ import vg.civcraft.mc.mercury.events.AsyncPluginBroadcastMessageEvent;
 
 public class MercuryBukkitListener implements Listener {
 	
-	private Set<String> pinged = Collections.synchronizedSet(new TreeSet<String>());
+	private Set<String> pinged = Collections.synchronizedSet(new TreeSet<String>()); // If the server is in this list then they 
+	// are not active.
 	
 	public MercuryBukkitListener() {
 		MercuryAPI.registerPluginMessageChannel("mercury");
@@ -35,19 +36,21 @@ public class MercuryBukkitListener implements Listener {
 			public void run() {
 				sendSyncResponse(MercuryAPI.serverName(), null);
 			}
-		}, 10, 300);
+		}, 10, 100);
 
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(MercuryPlugin.instance, new Runnable() {
 			@Override
 			public void run() {
 				for (String server : MercuryAPI.getAllConnectedServers()) {
-					if (!pinged.contains(server)) {
-						MercuryAPI.instance.removeConnectedServer(server);
+					if (pinged.contains(server)) { // Then they havent removed it.
+						MercuryAPI.instance.removeConnectedServer(server); // So remove them.
 					}
+					else
+						pinged.add(server); // Add them to be checked.
 				}
 				pinged.clear();
 			}
-		}, 10, 1200);
+		}, 10, 160);
 	}
 
 	public void sendSyncResponse(String thisServer, String remoteServer) {
@@ -125,7 +128,7 @@ public class MercuryBukkitListener implements Listener {
 		if (reason.equals("ping")){
 			// Data format: ping|serverName
 			MercuryAPI.instance.addConnectedServer(remoteServer);
-			pinged.add(remoteServer);
+			pinged.remove(remoteServer);
 			return;
 		}
 
