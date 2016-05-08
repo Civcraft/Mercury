@@ -46,9 +46,9 @@ public class MercuryBungeeListener implements EventListener {
 		final String reason = message[0];
 		final String remoteServer = message[1];
 		final String remainder = message.length >= 3 ? message[2] : null;
+		pinged.remove(remoteServer);
 		if (reason.equals("ping")){
 			MercuryAPI.instance.addConnectedServer(remoteServer);
-			pinged.remove(remoteServer);
 			return;
 		}
 		if (reason.equals("sync")){
