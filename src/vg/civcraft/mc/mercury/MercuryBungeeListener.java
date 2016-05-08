@@ -28,7 +28,7 @@ public class MercuryBungeeListener implements EventListener {
 				}
 			}
 			
-		}, 1, 5, TimeUnit.SECONDS);
+		}, 1, 6, TimeUnit.SECONDS);
 	}
 	
 	@Override

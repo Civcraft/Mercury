@@ -31,7 +31,7 @@ public class MercuryPlugin extends JavaPlugin{
 			public void run() {
 				pingService();
 			}
-		}, 400, 400);
+		}, 0, 60);
 
 		Bukkit.getPluginManager().registerEvents(new MercuryBukkitListener(), this);
 		name = MercuryConfigManager.getServerName();
