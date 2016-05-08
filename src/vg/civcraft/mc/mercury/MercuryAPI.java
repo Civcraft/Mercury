@@ -4,19 +4,20 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.logging.Logger;
 
 import com.google.common.base.Joiner;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 import vg.civcraft.mc.mercury.config.MercuryConfigManager;
 import vg.civcraft.mc.mercury.events.EventListener;
 import vg.civcraft.mc.mercury.events.EventManager;
 
 public class MercuryAPI {
+	public static final Joiner joinPipe = Joiner.on("|");
+	public static final Joiner joinComma = Joiner.on(", ");
 
 	public static MercuryAPI instance;
 
@@ -77,7 +78,7 @@ public class MercuryAPI {
 	 * @param players
 	 */
 	public static void setAllPlayers(List<PlayerDetails> players){
-		synchronized (MercuryAPI.instance.playersByUUID_) {
+		synchronized (MercuryAPI.instance.playerListLock_) {
 			for (PlayerDetails player: players) {
 				MercuryAPI.instance.playersByUUID_.put(player.getAccountId(), player);
 				MercuryAPI.instance.playersByName_.put(player.getPlayerName(), player);
@@ -89,13 +90,16 @@ public class MercuryAPI {
 	 * Returns the server that a player is on.
 	 */
 	public static PlayerDetails getServerforAccount(UUID accountId) {
-		synchronized (MercuryAPI.instance.playersByUUID_) {
+		synchronized (MercuryAPI.instance.playerListLock_) {
 			return MercuryAPI.instance.playersByUUID_.get(accountId);
 		}
 	}
 
+	/**
+	 * Case-insensitive retrieval of player details
+	 */
 	public static PlayerDetails getServerforPlayer(String playerName) {
-		synchronized (MercuryAPI.instance.playersByUUID_) {
+		synchronized (MercuryAPI.instance.playerListLock_) {
 			return MercuryAPI.instance.playersByName_.get(playerName);
 		}
 	}
@@ -105,24 +109,36 @@ public class MercuryAPI {
 	 * @param player The player's name.
 	 * @param server The server that the player is on.
 	 */
-	public static void addPlayer(UUID accountId, String player, String server) {
-		addPlayer(new PlayerDetails(accountId, player, server));
+	public static boolean addPlayer(UUID accountId, String player, String server) {
+		return addPlayer(new PlayerDetails(accountId, player, server));
 	}
 
-	public static void addPlayer(PlayerDetails details) {
-		synchronized (MercuryAPI.instance.playersByUUID_) {
+	public static boolean addPlayer(PlayerDetails details) {
+		boolean result = true;
+		synchronized (MercuryAPI.instance.playerListLock_) {
+			PlayerDetails oldDetails = MercuryAPI.instance.playersByUUID_.get(details.getAccountId());
+			if (oldDetails != null) {
+				if (oldDetails.getServerName().equalsIgnoreCase(details.getServerName())) {
+					// The player is already on that server so technically there shouldn't be an update.
+					// In the case of a NameLayer player rename though, this player's name could have
+					// changed so continue to update the maps.
+					result = false;
+				}
+			}
 			MercuryAPI.instance.playersByUUID_.put(details.getAccountId(), details);
 			MercuryAPI.instance.playersByName_.put(details.getPlayerName(), details);
 		}
+		return result;
 	}
 
 	/**
 	 * Removes a player from the list.
 	 * @param player
 	 */
-	public static void removeAccount(UUID accountId){
-		synchronized (MercuryAPI.instance.playersByUUID_) {
+	public static void removeAccount(UUID accountId, String accountName){
+		synchronized (MercuryAPI.instance.playerListLock_) {
 			MercuryAPI.instance.playersByUUID_.remove(accountId);
+			MercuryAPI.instance.playersByName_.remove(accountName);
 		}
 	}
 
@@ -131,24 +147,22 @@ public class MercuryAPI {
 	 * @return
 	 */
 	public static Set<UUID> getAllAccounts(){
-		synchronized (MercuryAPI.instance.playersByUUID_) {
+		synchronized (MercuryAPI.instance.playerListLock_) {
 			return MercuryAPI.instance.playersByUUID_.keySet();
 		}
 	}
 
 	public static Set<String> getAllPlayers(){
-		synchronized (MercuryAPI.instance.playersByName_) {
+		synchronized (MercuryAPI.instance.playerListLock_) {
 			return MercuryAPI.instance.playersByName_.keySet();
 		}
 	}
 
 	public static boolean isKnownAccount(UUID accountId) {
-		synchronized (MercuryAPI.instance.playersByUUID_) {
+		synchronized (MercuryAPI.instance.playerListLock_) {
 			return MercuryAPI.instance.playersByUUID_.containsKey(accountId);
 		}
 	}
-
-	private static final Joiner joinPipe = Joiner.on("|");
 
 	public static void traceSendMessage(String dest, String message, String... channels) {
 		if (!MercuryConfigManager.getDebug()) {
@@ -201,7 +215,7 @@ public class MercuryAPI {
 	 */
 	public static Set<String> getAllConnectedServers() {
 		synchronized (MercuryAPI.instance.connectedServers_) {
-			return MercuryAPI.instance.connectedServers_;
+			return new HashSet<String>(MercuryAPI.instance.connectedServers_);
 		}
 	}
 
@@ -220,7 +234,7 @@ public class MercuryAPI {
 		serverName_ = MercuryConfigManager.getServerName();
 		service_ = ServiceManager.getService();
 		playersByUUID_ = new HashMap<>();
-		playersByName_ = new HashMap<>();
+		playersByName_ = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		connectedServers_ = new TreeSet<>();
 	}
 
@@ -229,26 +243,33 @@ public class MercuryAPI {
 	}
 
 	protected void addConnectedServer(String server) {
-		MercuryAPI.info("Server connected: %s", server);
+		boolean result = false;
 		synchronized (MercuryAPI.instance.connectedServers_) {
 			if (MercuryAPI.serverName().equalsIgnoreCase(server)) {
 				MercuryAPI.err("DUPLICATE SERVER NAME REGISTERED: %s", server);
 			}
-			connectedServers_.add(server);
+			result = connectedServers_.add(server);
+		}
+		if (result) {
+			MercuryAPI.info("Server connected: %s", server);
 		}
 	}
 
 	protected void removeConnectedServer(String server) {
-		MercuryAPI.info("Server disconnected: %s", server);
+		boolean result = false;
 		synchronized (MercuryAPI.instance.connectedServers_) {
-			connectedServers_.remove(server);
+			result = connectedServers_.remove(server);
+		}
+		if (result) {
+			MercuryAPI.info("Server disconnected: %s", server);
 		}
 	}
 
 	private ServiceHandler service_;
 	private String serverName_;
 	private Logger log_;
+	private Object playerListLock_ = new Object();
 	private HashMap<UUID, PlayerDetails> playersByUUID_;
-	private HashMap<String, PlayerDetails> playersByName_;
+	private TreeMap<String, PlayerDetails> playersByName_;
 	private Set<String> connectedServers_;
 }

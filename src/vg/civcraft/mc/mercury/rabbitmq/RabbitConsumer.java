@@ -1,6 +1,5 @@
 package vg.civcraft.mc.mercury.rabbitmq;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,7 +8,6 @@ import vg.civcraft.mc.mercury.config.MercuryConfigManager;
 import vg.civcraft.mc.mercury.events.EventManager;
 
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.ConsumerCancelledException;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.ShutdownSignalException;
@@ -25,6 +23,18 @@ public class RabbitConsumer extends DefaultConsumer {
 		super(channel);
 		handler_ = handler;
 		queueName_ = queueName;
+	}
+
+	@Override
+	public void handleShutdownSignal(java.lang.String consumerTag, ShutdownSignalException sig) {
+		// Potential connection loss
+		handler_.rabbitmqShutdownTriggered();
+	}
+
+	@Override
+	public void handleCancel(java.lang.String consumerTag) {
+		// Queue or exchange could be deleted
+		handler_.rabbitmqShutdownTriggered();
 	}
 
 	@Override

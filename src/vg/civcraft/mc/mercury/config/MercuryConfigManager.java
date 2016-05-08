@@ -3,8 +3,6 @@ package vg.civcraft.mc.mercury.config;
 import java.io.File;
 import java.util.concurrent.ThreadFactory;
 
-import vg.civcraft.mc.mercury.MercuryAPI;
-
 public class MercuryConfigManager {
 	public static void initialize() {
 		if (config_ != null) {

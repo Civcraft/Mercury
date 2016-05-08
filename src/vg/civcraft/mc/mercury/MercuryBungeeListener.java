@@ -48,8 +48,7 @@ public class MercuryBungeeListener implements EventListener {
 		final String remoteServer = message[1];
 		final String remainder = message.length >= 3 ? message[2] : null;
 		if (reason.equals("ping")){
-			String server = message[1];
-			MercuryAPI.instance.addConnectedServer(server);
+			MercuryAPI.instance.addConnectedServer(remoteServer);
 			pinged.remove(remoteServer);
 			return;
 		}
@@ -83,7 +82,7 @@ public class MercuryBungeeListener implements EventListener {
 			final String playerName = message[1];
 			try {
 				UUID accountId = UUID.fromString(playerUUID);
-			  MercuryAPI.instance.addPlayer(accountId, playerName, remoteServer);
+			  MercuryAPI.addPlayer(accountId, playerName, remoteServer);
 			  MercuryAPI.info("Player %s has logged in on server: %s", playerName, remoteServer);
 			} catch(Exception ex) {}
 			return;
@@ -98,7 +97,7 @@ public class MercuryBungeeListener implements EventListener {
 			final String playerName = message[1];
 			try {
 				UUID accountId = UUID.fromString(playerUUID);
-				MercuryAPI.removeAccount(accountId);
+				MercuryAPI.removeAccount(accountId, playerName);
 			  MercuryAPI.info("Player %s has logged off on server: %s", playerName, remoteServer);
 			} catch(Exception ex) {}
 			return;

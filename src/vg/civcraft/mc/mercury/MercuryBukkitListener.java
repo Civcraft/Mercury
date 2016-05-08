@@ -3,6 +3,7 @@ package vg.civcraft.mc.mercury;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -14,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import vg.civcraft.mc.mercury.config.MercuryConfigManager;
@@ -49,6 +51,9 @@ public class MercuryBukkitListener implements Listener {
 						pinged.add(server); // Add them to be checked.
 				}
 				pinged.clear();
+				for(Player p:MercuryPlugin.instance.getServer().getOnlinePlayers()) {
+					MercuryAPI.addPlayer(p.getUniqueId(), p.getName(), MercuryAPI.serverName());
+				}
 			}
 		}, 10, 160);
 	}
@@ -111,17 +116,16 @@ public class MercuryBukkitListener implements Listener {
 				MercuryAPI.warn("Malformed message: %s", msg);
 				return;
 			}
-			String allsynced = "";
+			List<String> allSynced = new LinkedList<>();
 			for (PlayerDetails details : playerList) {
 				MercuryAPI.addPlayer(details);
-				allsynced = allsynced + details.getPlayerName() + " ,";
+				allSynced.add(details.getPlayerName());
 			}
-			if (allsynced.isEmpty()) {
+			if (allSynced.isEmpty()) {
 				return;
 			}
-			allsynced = allsynced.substring(0, allsynced.length()-2);
 			if (MercuryConfigManager.getDebug()) {
-				MercuryAPI.info("Synced players from %s: %s", remoteServer, allsynced);
+				MercuryAPI.info("Synced players from %s: %s", remoteServer, MercuryAPI.joinComma.join(allSynced));
 			}
 			return;
 		}
@@ -148,8 +152,9 @@ public class MercuryBukkitListener implements Listener {
 			final String playerName = message[1];
 			try {
 				UUID accountId = UUID.fromString(playerUUID);
-				MercuryAPI.addPlayer(accountId, playerName, remoteServer);
-				MercuryAPI.info("Player %s (%s) has logged in on server %s", playerName, playerUUID, remoteServer);
+				if (MercuryAPI.addPlayer(accountId, playerName, remoteServer)) {
+					MercuryAPI.info("Player %s (%s) has logged in on server %s", playerName, playerUUID, remoteServer);
+				}
 			} catch (Exception ex) {}
 			return;
 		}
@@ -162,33 +167,54 @@ public class MercuryBukkitListener implements Listener {
 			final String playerUUID = message[0];
 			final String playerName = message[1];
 			try {
-				UUID accountId = UUID.fromString(playerUUID);
-				MercuryAPI.removeAccount(accountId);
 				MercuryAPI.info("Player %s (%s) has logged off on server %s", playerName, playerUUID, remoteServer);
+				UUID accountId = UUID.fromString(playerUUID);
+				if (Bukkit.getPlayer(accountId) != null) {
+					// Don't remove the player if they are logged into this server.
+					// In fact, re-broadcast that they exist on this server.
+					sendLoginMessage(accountId, playerName);
+					return;
+				}
+				MercuryAPI.removeAccount(accountId, playerName);
 			} catch (Exception ex) {}
 			return;
 		}
 	}
 
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onLogin(PlayerJoinEvent event){
+	public void sendLoginMessage(UUID accountId, String playerName) {
+		MercuryAPI.addPlayer(accountId, playerName, MercuryAPI.serverName());
 		MercuryAPI.sendGlobalMessage(
 				String.format(
 						"login|%s|%s|%s",
 						MercuryAPI.serverName(),
-						event.getPlayer().getUniqueId().toString(),
-						event.getPlayer().getDisplayName()),
+						accountId.toString(),
+						playerName),
 				"mercury");
 	}
 
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onLogoff(PlayerQuitEvent event){
+	public void sendLogoffMessage(UUID accountId, String playerName) {
+		MercuryAPI.removeAccount(accountId, playerName);
 		MercuryAPI.sendGlobalMessage(
 				String.format(
 						"logoff|%s|%s|%s",
 						MercuryAPI.serverName(),
-						event.getPlayer().getUniqueId().toString(),
-						event.getPlayer().getName()),
+						accountId.toString(),
+						playerName),
 				"mercury");
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onLogin(PlayerJoinEvent event){
+		sendLoginMessage(event.getPlayer().getUniqueId(), event.getPlayer().getDisplayName());
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onKick(PlayerKickEvent event){
+		sendLogoffMessage(event.getPlayer().getUniqueId(), event.getPlayer().getDisplayName());
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onLogoff(PlayerQuitEvent event){
+		sendLogoffMessage(event.getPlayer().getUniqueId(), event.getPlayer().getDisplayName());
 	}
 }
