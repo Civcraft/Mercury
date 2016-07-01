@@ -1,5 +1,6 @@
 package vg.civcraft.mc.mercury;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -82,6 +83,9 @@ public class MercuryAPI {
 			for (PlayerDetails player: players) {
 				MercuryAPI.instance.playersByUUID_.put(player.getAccountId(), player);
 				MercuryAPI.instance.playersByName_.put(player.getPlayerName(), player);
+				if (!MercuryAPI.instance.playersByServer_.containsKey(player.getServerName()))
+					MercuryAPI.instance.playersByServer_.put(player.getServerName(), new ArrayList<PlayerDetails>());
+				MercuryAPI.instance.playersByServer_.get(player.getServerName()).add(player);
 			}
 		}
 	}
@@ -124,9 +128,16 @@ public class MercuryAPI {
 					// changed so continue to update the maps.
 					result = false;
 				}
+				// Here we want to remove any previous record if it existed.
+				if (!MercuryAPI.instance.playersByServer_.containsKey(oldDetails.getServerName()))
+					MercuryAPI.instance.playersByServer_.put(oldDetails.getServerName(), new ArrayList<PlayerDetails>());
+				MercuryAPI.instance.playersByServer_.get(oldDetails.getServerName()).remove(oldDetails);
 			}
 			MercuryAPI.instance.playersByUUID_.put(details.getAccountId(), details);
 			MercuryAPI.instance.playersByName_.put(details.getPlayerName(), details);
+			if (!MercuryAPI.instance.playersByServer_.containsKey(details.getServerName()))
+				MercuryAPI.instance.playersByServer_.put(details.getServerName(), new ArrayList<PlayerDetails>());
+			MercuryAPI.instance.playersByServer_.get(details.getServerName()).add(details);
 		}
 		return result;
 	}
@@ -137,6 +148,8 @@ public class MercuryAPI {
 	 */
 	public static void removeAccount(UUID accountId, String accountName){
 		synchronized (MercuryAPI.instance.playerListLock_) {
+			PlayerDetails details = MercuryAPI.instance.playersByName_.get(accountName);
+			MercuryAPI.instance.playersByServer_.get(details.getServerName()).remove(details);
 			MercuryAPI.instance.playersByUUID_.remove(accountId);
 			MercuryAPI.instance.playersByName_.remove(accountName);
 		}
@@ -155,6 +168,12 @@ public class MercuryAPI {
 	public static Set<String> getAllPlayers(){
 		synchronized (MercuryAPI.instance.playerListLock_) {
 			return MercuryAPI.instance.playersByName_.keySet();
+		}
+	}
+	
+	public static ArrayList<PlayerDetails> getAllAccountsByServer(String server) {
+		synchronized(MercuryAPI.instance.playerListLock_) {
+			return MercuryAPI.instance.playersByServer_.get(server);
 		}
 	}
 
@@ -235,6 +254,7 @@ public class MercuryAPI {
 		service_ = ServiceManager.getService();
 		playersByUUID_ = new HashMap<>();
 		playersByName_ = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		playersByServer_ = new HashMap<>();
 		connectedServers_ = new TreeSet<>();
 	}
 
@@ -271,5 +291,6 @@ public class MercuryAPI {
 	private Object playerListLock_ = new Object();
 	private HashMap<UUID, PlayerDetails> playersByUUID_;
 	private TreeMap<String, PlayerDetails> playersByName_;
+	private HashMap<String, ArrayList<PlayerDetails>> playersByServer_;
 	private Set<String> connectedServers_;
 }
