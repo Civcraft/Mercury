@@ -173,6 +173,8 @@ public class MercuryAPI {
 	
 	public static ArrayList<PlayerDetails> getAllAccountsByServer(String server) {
 		synchronized(MercuryAPI.instance.playerListLock_) {
+			if (!MercuryAPI.instance.playersByServer_.containsKey(server))
+				MercuryAPI.instance.playersByServer_.put(server, new ArrayList<PlayerDetails>());
 			return MercuryAPI.instance.playersByServer_.get(server);
 		}
 	}
