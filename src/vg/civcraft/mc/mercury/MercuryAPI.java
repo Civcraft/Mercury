@@ -275,7 +275,7 @@ public class MercuryAPI {
 			result = connectedServers_.add(server);
 		}
 		if (result) {
-			MercuryAPI.info("Server connected: %s", server);
+			//MercuryAPI.info("Server connected: %s", server);
 		}
 	}
 
@@ -285,7 +285,7 @@ public class MercuryAPI {
 			result = connectedServers_.remove(server);
 		}
 		if (result) {
-			MercuryAPI.info("Server disconnected: %s", server);
+			//MercuryAPI.info("Server disconnected: %s", server);
 		}
 	}
 
