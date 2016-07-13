@@ -27,11 +27,15 @@ public class MercuryPlugin extends JavaPlugin{
 		}
 		addServerToServerList();
 		Bukkit.getScheduler().runTaskTimer(this, new Runnable(){
+			private long lastTime = System.currentTimeMillis();
 			@Override
 			public void run() {
-				pingService();
+				if (lastTime + 2500 <= System.currentTimeMillis()) {
+					lastTime = System.currentTimeMillis();
+					pingService();
+				}
 			}
-		}, 0, 60);
+		}, 0, 3);
 
 		Bukkit.getPluginManager().registerEvents(new MercuryBukkitListener(), this);
 		name = MercuryConfigManager.getServerName();

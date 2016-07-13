@@ -23,8 +23,9 @@ public class MercuryBungeeListener implements EventListener {
 					if (pinged.contains(server)) { // Then they havent removed it.
 						MercuryAPI.instance.removeConnectedServer(server); // So remove them.
 					}
-					else
+					else {
 						pinged.add(server); // Add them to be checked.
+					}
 				}
 			}
 			
