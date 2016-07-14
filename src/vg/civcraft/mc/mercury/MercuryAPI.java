@@ -285,7 +285,7 @@ public class MercuryAPI {
 			result = connectedServers_.remove(server);
 		}
 		if (result) {
-			//MercuryAPI.info("Server disconnected: %s", server);
+			MercuryAPI.info("Server disconnected: %s", server);
 		}
 	}
 

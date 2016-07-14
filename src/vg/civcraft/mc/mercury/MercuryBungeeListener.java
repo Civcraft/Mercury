@@ -13,8 +13,14 @@ import vg.civcraft.mc.mercury.events.EventListener;
 public class MercuryBungeeListener implements EventListener {
 
 	private Set<String> pinged = Collections.synchronizedSet(new TreeSet<String>());
+	public static boolean initialized = false; // I have no fucking idea why this is required but dont remove it.
+	// For some reason this class is somehow instigating two of itself.
 	
 	public MercuryBungeeListener() {
+		if (initialized) {
+			return;
+		}
+		initialized = true;
 		ProxyServer.getInstance().getScheduler().schedule(MercuryBungePlugin.plugin, new Runnable() {
 
 			@Override

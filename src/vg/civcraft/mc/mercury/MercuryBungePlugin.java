@@ -1,7 +1,9 @@
 package vg.civcraft.mc.mercury;
 
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import vg.civcraft.mc.mercury.MercuryAPI;
@@ -18,6 +20,7 @@ public class MercuryBungePlugin extends Plugin{
 		plugin = this;
 		MercuryAPI.initialize();
 		MercuryAPI.addChannels("mercury");
-		MercuryAPI.registerListener(new MercuryBungeeListener(), "mercury");
+		MercuryBungeeListener l = new MercuryBungeeListener();
+		MercuryAPI.registerListener(l, "mercury");
 	}
 }
