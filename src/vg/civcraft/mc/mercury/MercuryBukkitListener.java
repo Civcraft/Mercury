@@ -148,9 +148,7 @@ public class MercuryBukkitListener implements Listener {
 			final String playerName = message[1];
 			try {
 				UUID accountId = UUID.fromString(playerUUID);
-				if (MercuryAPI.addPlayer(accountId, playerName, remoteServer)) {
-					MercuryAPI.info("Player %s (%s) has logged in on server %s", playerName, playerUUID, remoteServer);
-				}
+				MercuryAPI.addPlayer(accountId, playerName, remoteServer);
 			} catch (Exception ex) {}
 			return;
 		}
@@ -163,7 +161,6 @@ public class MercuryBukkitListener implements Listener {
 			final String playerUUID = message[0];
 			final String playerName = message[1];
 			try {
-				MercuryAPI.info("Player %s (%s) has logged off on server %s", playerName, playerUUID, remoteServer);
 				UUID accountId = UUID.fromString(playerUUID);
 				if (Bukkit.getPlayer(accountId) != null) {
 					// Don't remove the player if they are logged into this server.

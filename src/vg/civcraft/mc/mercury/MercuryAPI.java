@@ -149,6 +149,9 @@ public class MercuryAPI {
 	public static void removeAccount(UUID accountId, String accountName){
 		synchronized (MercuryAPI.instance.playerListLock_) {
 			PlayerDetails details = MercuryAPI.instance.playersByName_.get(accountName);
+			if (details == null) {
+				return;
+			}
 			if (!MercuryAPI.instance.playersByServer_.containsKey(details.getServerName()))
 				MercuryAPI.instance.playersByServer_.put(details.getServerName(), new ArrayList<PlayerDetails>());
 			MercuryAPI.instance.playersByServer_.get(details.getServerName()).remove(details);
