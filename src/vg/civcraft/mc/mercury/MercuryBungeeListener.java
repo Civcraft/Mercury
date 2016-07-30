@@ -89,7 +89,7 @@ public class MercuryBungeeListener implements EventListener {
 			try {
 				UUID accountId = UUID.fromString(playerUUID);
 			  MercuryAPI.addPlayer(accountId, playerName, remoteServer);
-			  MercuryAPI.info("Player %s has logged in on server: %s", playerName, remoteServer);
+			  //MercuryAPI.info("Player %s has logged in on server: %s", playerName, remoteServer);
 			} catch(Exception ex) {}
 			return;
 		}
@@ -104,7 +104,7 @@ public class MercuryBungeeListener implements EventListener {
 			try {
 				UUID accountId = UUID.fromString(playerUUID);
 				MercuryAPI.removeAccount(accountId, playerName);
-			  MercuryAPI.info("Player %s has logged off on server: %s", playerName, remoteServer);
+			  //MercuryAPI.info("Player %s has logged off on server: %s", playerName, remoteServer);
 			} catch(Exception ex) {}
 			return;
 		}
