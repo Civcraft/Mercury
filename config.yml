@@ -4,3 +4,5 @@ host: 'localhost'
 port: 6379
 password: ''
 servername: ''
+proxyticks: 20
+proxyPingSeconds: 30

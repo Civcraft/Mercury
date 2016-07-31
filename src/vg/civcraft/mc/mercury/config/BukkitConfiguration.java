@@ -56,4 +56,8 @@ public class BukkitConfiguration implements Configuration {
 	private ConfigurationSection config(){
 		return MercuryPlugin.instance.getConfig();
 	}
+	
+	public int getPingTicks() {
+		return config().getInt("proxyticks", 20);
+	}
 }

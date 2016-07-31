@@ -47,6 +47,22 @@ public class MercuryConfigManager {
 	public static String getServerName(){
 		return config_.getServerName();
 	}
+	
+	// Should only be used by bukkit.
+	public static int getPingTicks() {
+		if (MercuryConfigManager.serverType_ == ServerType.Bukkit) {
+			return ((BukkitConfiguration) config_).getPingTicks();
+		}
+		return -1;
+	}
+	
+	// Should only be used by bungee.
+	public static int getSecondsPing() {
+		if (MercuryConfigManager.serverType_ == ServerType.Bungee) {
+			return ((BungeeConfiguration) config_).getSecondsPing();
+		}
+		return -1;
+	}
 
 	public static String getServiceHandler(){
 		return config_.getServiceHandler();

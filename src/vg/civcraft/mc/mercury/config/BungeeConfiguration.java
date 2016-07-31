@@ -81,6 +81,10 @@ public class BungeeConfiguration implements vg.civcraft.mc.mercury.config.Config
 	public String getServiceHandler(){
 		return config().getString("service", "rabbit");
 	}
+	
+	public int getSecondsPing() {
+		return config().getInt("proxyPingSeconds", 10);
+	}
 
 	// Bungee threading deprecated only to deter its use.
 	@SuppressWarnings("deprecation")

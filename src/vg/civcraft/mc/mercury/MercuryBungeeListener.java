@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import net.md_5.bungee.api.ProxyServer;
+import vg.civcraft.mc.mercury.config.MercuryConfigManager;
 import vg.civcraft.mc.mercury.events.EventListener;
 
 public class MercuryBungeeListener implements EventListener {
@@ -35,7 +36,7 @@ public class MercuryBungeeListener implements EventListener {
 				}
 			}
 			
-		}, 1, 6, TimeUnit.SECONDS);
+		}, 1, MercuryConfigManager.getSecondsPing(), TimeUnit.SECONDS);
 	}
 	
 	@Override
